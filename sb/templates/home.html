@@ -37,7 +37,7 @@
 <!-- Add Expense Category Modal -->
 <div class="modal fade" id="addExpenseCategoryModal" tabindex="-1" aria-labelledby="addExpenseCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form method="POST" action="">
+    <form method="POST" action="{{ url_for('add_expense_category') }}">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="addExpenseCategoryModalLabel">Add Expense Category</h5>

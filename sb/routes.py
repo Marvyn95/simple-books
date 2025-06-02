@@ -93,21 +93,61 @@ def register_emp():
 def home():
     user = db.Users.find_one({"user_name": session.get("username")})
     org = db.Organizations.find_one({"_id": user["organization"]})
-    return render_template("home.html", user = user, org = org)
+    org_income_categories = [k["category_name"] for k in org["income_categories"]]
+    org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
+    return render_template("home.html",
+                            user = user,
+                            org = org, 
+                            org_income_categories = org_income_categories, 
+                            org_expense_categories = org_expense_categories)
 
 @app.route("/add_income_category", methods=["POST"])
 def add_income_category():
     if request.method == "POST":
         form_data = request.form
         user = db.Users.find_one({"user_name": session.get("username")})
-        if form_data["income_category"] not in db.Organizations.find_one({"_id": user["organization"]})["income_categories"]
-            db.Organizations.update_one({ "_id": user["organization"] },{ "$push": { "income_categories": form_data["income_category"] }})
+        income_categories = db.Organizations.find_one({"_id": user["organization"]})["income_categories"]
+        income_category_names = []
+        for k in income_categories:
+            income_category_names.append(k["category_name"])
+
+        if form_data["income_category"] not in income_category_names:
+            db.Organizations.update_one({ "_id": user["organization"] },{ "$push": { "income_categories": {
+                "category_name": form_data["income_category"],
+                "category_description": form_data["description"]
+            }}})
             flash("Income Category has been added successfully!", "Error")
+            return redirect(url_for("home"))
         else:
             flash("Income category already exists!", "Error")
             return redirect(url_for("home"))
     else:
         return redirect(url_for("home"))
+
+@app.route("/add_expense_category", methods=["POST"])
+def add_expense_category():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
+        expense_categories = db.Organizations.find_one({"_id": user["organization"]})["expense_categories"]
+        expense_category_names = []
+        for k in expense_categories:
+            expense_category_names.append(k["category_name"])
+
+        if form_data["expense_category"] not in expense_category_names:
+            db.Organizations.update_one({ "_id": user["organization"] },{ "$push": { "expense_categories": {
+                "category_name": form_data["expense_category"],
+                "category_description": form_data["description"]
+            }}})
+            flash("Expense category has been added successfully!", "Error")
+            return redirect(url_for("home"))
+        else:
+            flash("Expense category already exists!", "Error")
+            return redirect(url_for("home"))
+    else:
+        return redirect(url_for("home"))
+
+
         
 
 
