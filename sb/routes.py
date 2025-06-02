@@ -12,8 +12,8 @@ def register_owner():
                 # registering business
                 db.Organizations.insert_one({
                     "org_name": owner_info["organization"],
-                    "locations": request.form.getlist("locations")
-                    "income_categories": []
+                    "locations": request.form.getlist("locations"),
+                    "income_categories": [],
                     "expense_categories": []
                 })
 
@@ -97,7 +97,7 @@ def home():
 
 @app.route("/add_income_category", methods=["POST"])
 def add_income_category():
-    if request.method = "POST":
+    if request.method == "POST":
         form_data = request.form
         user = db.Users.find_one({"user_name": session.get("username")})
         if form_data["income_category"] not in db.Organizations.find_one({"_id": user["organization"]})["income_categories"]
