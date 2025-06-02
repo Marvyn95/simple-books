@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register - Simple Books</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 md:p-10">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Register New Employee</h1>
+    <p class="text-center text-gray-600 mb-6">
+      Register your business employees
+    </p>
+
+    <form action="{{ url_for('register_emp') }}" method="POST" class="space-y-4">
+      <div>
+        <label for="username" class="block text-left text-gray-700 font-medium mb-1">Username</label>
+        <input type="text" id="username" name="username" required
+               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div>
+        <label for="password" class="block text-left text-gray-700 font-medium mb-1">Password</label>
+        <input type="password" id="password" name="password" required
+               class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+    <div>
+    <label for="location" class="block text-sm font-medium text-gray-700">Location</label>
+    <select name="location" id="location" required class="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <option value="" disabled selected>-- Select Employee location --</option>
+        {% for loc in locations %}
+          <option value="{{location}}">{{ loc }}</option>
+        {% endfor %}
+    </select>
+    </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="text-sm">
+            {% for category, message in messages %}
+              <li class="text-{{ 'red' if category == 'error' else 'green' }}-600">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <button type="submit"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition">
+        Register Employee
+      </button>
+    </form>
+  </div>
+
+</body>
+</html>
