@@ -1,5 +1,6 @@
 from sb import app, db, bcrypt
 from flask import render_template, request, session, flash, redirect, url_for
+import datetime
 
 @app.route("/register_owner", methods=["GET", "POST"])
 def register_owner():
@@ -95,7 +96,7 @@ def home():
     org = db.Organizations.find_one({"_id": user["organization"]})
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
-    return render_template("home.html",
+    return render_template("home_2.html",
                             user = user,
                             org = org, 
                             org_income_categories = org_income_categories, 
@@ -148,8 +149,48 @@ def add_expense_category():
         return redirect(url_for("home"))
 
 
-        
+@app.route("/add_sale", methods=["POST"])
+def add_sale():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
+
+        db.Sales.insert_one({
+            "logger_id": user["_id"],
+            "organization_id": user["organization"],
+            "income_source": form_data["income_source"],
+            "amount": form_data["amount"],
+            "type": form_data["type"],
+            "client_name": form_data["client_name"],
+            "date": datetime.datetime.today(),
+            "comments": form_data["comments"],
+            "payment_history": []
+        })
+        flash("Your sale has been recorded successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        redirect(url_for("home"))
 
 
+@app.route("/add_expense", methods=["POST"])
+def add_expense():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
 
-
+        db.Expenses.insert_one({
+            "logger_id": user["_id"],
+            "organization_id": user["organization"],
+            "expense_source": form_data["expense_source"],
+            "amount": form_data["amount"],
+            "type": form_data["type"],
+            "service_provider": form_data["recipient"],
+            "source_of_funds": form_data["payment_method"],
+            "date": datetime.datetime.today(),
+            "comments": form_data["comments"],
+            "payment_history": []
+        })
+        flash("Your expense has been recorded successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        redirect(url_for("home"))

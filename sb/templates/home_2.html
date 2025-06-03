@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Navbar -->
+  <!-- Tabs -->
+  <!-- Inputs Tab -->
+  <!-- Debts Tab -->
+  <!-- Daily figures Tab -->
+  <!-- Summaries Tab -->
+  <!-- People Tab -->
+  <!-- Income Modal -->
+<head>
+  <meta charset="UTF-8">
+  <title>Inputs Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<!-- Add Income Category Modal -->
+<div class="modal fade" id="addSaleCategoryModal" tabindex="-1" aria-labelledby="addSaleCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('add_income_category') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addSaleCategoryModalLabel">Add Income Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="incomeCategory" class="form-label">Income Category</label>
+            <input type="text" class="form-control" id="incomeCategory" name="income_category" required>
+          </div>
+          <div class="mb-3">
+            <label for="incomeDescription" class="form-label">Description (optional)</label>
+            <textarea class="form-control" id="incomeDescription" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Add Category</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add Expense Category Modal -->
+<div class="modal fade" id="addExpenseCategoryModal" tabindex="-1" aria-labelledby="addExpenseCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('add_expense_category') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addExpenseCategoryModalLabel">Add Expense Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="expenseCategory" class="form-label">Expense Category</label>
+            <input type="text" class="form-control" id="expenseCategory" name="expense_category" required>
+          </div>
+          <div class="mb-3">
+            <label for="expenseDescription" class="form-label">Description (optional)</label>
+            <textarea class="form-control" id="expenseDescription" name="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Add Category</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal for adding sale -->
+{% for source in org_income_categories %}
+<div class="modal fade" id="incomeModal{{ loop.index }}" tabindex="-1" aria-labelledby="incomeModalLabel{{ loop.index }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('add_sale') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-primary" id="incomeModalLabel{{ loop.index }}">Add Sale – {{ source }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Displayed field -->
+          <div class="mb-3">
+            <label class="form-label">Income Source</label>
+            <input type="text" class="form-control" value="{{ source }}" readonly>
+            <input type="hidden" name="income_source" value="{{ source }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="amount{{ loop.index }}" class="form-label">Amount</label>
+            <input type="text" class="form-control" id="amount{{ loop.index }}" name="amount" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="type{{ loop.index }}" class="form-label">Type</label>
+            <select class="form-select" id="type{{ loop.index }}" name="type">
+              <option value="cash" selected>Cash</option>
+              <option value="debt">Debt</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="clientName{{ loop.index }}" class="form-label">Client Name</label>
+            <input type="text" class="form-control" id="clientName{{ loop.index }}" name="client_name" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="destination{{ loop.index }}" class="form-label">Destination of Funds</label>
+            <select class="form-select" id="destination{{ loop.index }}" name="destination">
+              <option value="cash register" selected>Cash Register</option>
+              <option value="bank">Bank</option>
+              <option value="mobile money">Mobile Money</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="comments{{ loop.index }}" class="form-label">Comments</label>
+            <textarea class="form-control" id="comments{{ loop.index }}" name="comments" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Submit Income</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+
+<!-- Modal for adding expense -->
+{% for source in org_expense_categories %}
+<div class="modal fade" id="expenseModal{{ loop.index }}" tabindex="-1" aria-labelledby="expenseModalLabel{{ loop.index }}" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('add_expense') }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger" id="expenseModalLabel{{ loop.index }}">Add Expense – {{ source }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Displayed field -->
+          <div class="mb-3">
+            <label class="form-label">Expense Source</label>
+            <input type="text" class="form-control" value="{{ source }}" readonly>
+            <input type="hidden" name="expense_source" value="{{ source }}">
+          </div>
+
+          <div class="mb-3">
+            <label for="amount{{ loop.index }}" class="form-label">Amount</label>
+            <input type="text" class="form-control" id="amount{{ loop.index }}" name="amount" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="type{{ loop.index }}" class="form-label">Type</label>
+            <select class="form-select" id="type{{ loop.index }}" name="type">
+              <option value="cash" selected>Cash</option>
+              <option value="debt">Debt</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="recipient{{ loop.index }}" class="form-label">Recipient / Vendor</label>
+            <input type="text" class="form-control" id="recipient{{ loop.index }}" name="recipient" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="payment_method{{ loop.index }}" class="form-label">Payment Method</label>
+            <select class="form-select" id="payment_method{{ loop.index }}" name="payment_method">
+              <option value="cash" selected>Cash Register</option>
+              <option value="bank">Bank</option>
+              <option value="mobile money">Mobile Money</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="comments{{ loop.index }}" class="form-label">Comments</label>
+            <textarea class="form-control" id="comments{{ loop.index }}" name="comments" rows="3"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Submit Expense</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+
+
+
+<body class="bg-light">
+  <!-- Navbar -->
+  <nav class="navbar navbar-light bg-white shadow-sm px-3 pb-0 d-flex justify-content-between align-items-center">
+    <p class="fs-2">
+      <span class="fw-bold" style="color: black;">Simple</span><span class="fst-italic fw-bold" style="color: rgb(3, 148, 3);">Books</span>
+    </p>
+  
+    <div class="d-flex align-items-center">
+        <div class="dropdown pb-3">
+        <a class="btn d-flex align-items-center dropdown-toggle-custom-width" href="#" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+            <span id="selected-location" class="flex-grow-1 text-truncate">{{ user['locations'][0] }}</span>
+            <i class="bi bi-chevron-down ms-1"></i>
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="max-width: 200px; overflow-x: auto;">
+            {% for location in user['locations'] %}
+            <li><a class="dropdown-item location-dropdown-item" href="#">{{ location }}</a></li>
+            {% endfor %}
+        </ul>
+        </div>
+      <p class="fw-bold text-decoration-none mx-2 ps-3" style="border-left: 2px solid black; color: rgb(3, 148, 3)"> {{ session['username'] }} </p>
+    </div>
+  </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+  <!-- Tabs -->
+  <div class="container">
+    <div class="tabs fw-semibold mt-2" style="overflow-x: auto; overflow-y: hidden; color: green;">
+    <ul class="nav nav-tabs flex-nowrap" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="inputs-tab" data-bs-toggle="tab" data-bs-target="#inputs" type="button" role="tab">Inputs</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="debts-tab" data-bs-toggle="tab" data-bs-target="#debts" type="button" role="tab">Debts</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="figures-tab" data-bs-toggle="tab" data-bs-target="#figures" type="button" role="tab" style="white-space: nowrap;">Daily Figures</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">Summaries</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#people" type="button" role="tab">People</button>
+      </li>
+    </ul>
+    </div>
+
+<div class="tab-content mt-3" id="myTabContent">
+<!-- Inputs Tab -->
+<div class="tab-pane fade show active" id="inputs" role="tabpanel">
+    <div class="row g-4">
+      <!-- Record Sales -->
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title text-primary">📈 Record Sales</h5>
+            <p class="card-text text-muted">Log today's sales transactions and view recent history.</p>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSaleCategoryModal">Add Sale Category</button>
+            {% for source in org_income_categories %}
+              <div class="mt-3">
+                <button class="btn btn-outline-success btn-sm w-100 text-start" data-bs-toggle="modal" data-bs-target="#incomeModal{{ loop.index }}">
+                  ➕ Add record for {{ source }}
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Record Expenses -->
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title text-primary">💸 Record Expenses</h5>
+            <p class="card-text text-muted">Log and keep track of your business expenditures.</p>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addExpenseCategoryModal">Add Expense Category</button>
+            {% for source in org_expense_categories %}
+              <div class="mt-3">
+                <button class="btn btn-outline-danger btn-sm w-100 text-start" data-bs-toggle="modal" data-bs-target="#expenseModal{{ loop.index }}">
+                  ➖ Add record for {{ source }}
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+  
+
+<!-- Debts Tab -->
+<div class="tab-pane fade" id="debts" role="tabpanel">
+  <div class="px-2">
+
+    <!-- Pending Indicators -->
+    <div class="d-flex justify-content-around mb-2 small fw-bold">
+      <span id="debtIncomes" class="text-primary activeDebt" style="cursor: pointer;" onclick="toggleDebtClass(this)">Pending Incomes</span>
+      <span id="debtExpenses" class="text-danger" style="cursor: pointer;" onclick="toggleDebtClass(this)">Pending Expenses</span>
+    </div>
+
+    <!-- Filter & Sort Dropdown -->
+    <div class="dropdown mb-2">
+      <button class="btn btn-outline-dark fw-bold w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter & Sort
+      </button>
+      <div class="dropdown-menu p-3 shadow" style="width: 100%;">
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Source</label>
+          <select class="form-select form-select-sm">
+            <option>All</option>
+            <option>Customer</option>
+            <option>Supplier</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Amount</label>
+          <input type="number" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Account</label>
+          <select class="form-select form-select-sm">
+            <option>All</option>
+            <option>Cash</option>
+            <option>Mobile Money</option>
+            <option>Bank</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Person</label>
+          <select class="form-select form-select-sm">
+            <option>All</option>
+            <option>Mark</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+
+    <!-- Debt Incomes -->
+    <div id="debtIncomesValues" class="row mt-2 px-2 activeDebtValues" style="max-height: 65vh; overflow-y: auto;">
+    <!-- Debt Cards -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Eddie</span>
+        <span>350,000/=</span>
+      </div>
+      <hr class="my-1 border-primary">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-primary btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#pendingIncomeDetailModal1" style="color: black;">Details</button>
+        <button class="btn btn-outline-primary btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#pendingIncomeModal" style="color: black;">Clear</button>
+      </div>
+    </div>
+
+    <!-- Another Debt Card -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Eddie</span>
+        <span>350,000/=</span>
+      </div>
+      <hr class="my-1 border-primary">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+        <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Clear</button>
+      </div>
+    </div>
+
+    <!-- Another Debt Card -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Eddie</span>
+        <span>350,000/=</span>
+      </div>
+      <hr class="my-1 border-primary">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-primary btn-sm mx-3">Details</button>
+        <button class="btn btn-outline-primary btn-sm mx-3">Clear</button>
+      </div>
+    </div>
+        <!-- Another Debt Card -->
+        <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+          <div class="d-flex justify-content-between fw-bold">
+            <span>Eddie</span>
+            <span>350,000/=</span>
+          </div>
+          <hr class="my-1 border-primary">
+          <div class="small">
+            <div class="d-flex justify-content-between">
+              <span>Date: <span>01/03/2025</span></span>
+              <span>Source: <span>Embroidery</span></span>
+            </div>
+            <span>Person: <span>Mark</span></span>
+          </div>
+          <div class="d-flex justify-content-end mt-2">
+            <button class="btn btn-outline-primary btn-sm mx-3">Details</button>
+            <button class="btn btn-outline-primary btn-sm mx-3">Clear</button>
+          </div>
+        </div>
+    <!-- Another Debt Card -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Eddie</span>
+        <span>350,000/=</span>
+      </div>
+      <hr class="my-1 border-primary">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-primary btn-sm mx-3">Details</button>
+        <button class="btn btn-outline-primary btn-sm mx-3">Clear</button>
+      </div>
+    </div>   
+  </div>
+
+ <!-- Debt Expenses --> 
+  <div id="debtExpensesValues" class="row mt-2 px-2 inActiveDebtValues" style="max-height: 65vh; overflow-y: auto;">
+    <!-- Debt Cards -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Blaise</span>
+        <span>450,000/=</span>
+      </div>
+      <hr class="my-1 border-danger">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-danger btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#pendingExpenseDetailModal1" style="color: black;">Details</button>
+        <button class="btn btn-outline-danger btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#pendingExpenseModal" style="color: black;">Clear</button>
+      </div>
+    </div>
+
+    <!-- Another Debt Card -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Blaise</span>
+        <span>450,000/=</span>
+      </div>
+      <hr class="my-1 border-danger">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
+        <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Clear</button>
+      </div>
+    </div>
+
+    <!-- Another Debt Card -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Blaise</span>
+        <span>450,000/=</span>
+      </div>
+      <hr class="my-1 border-danger">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-danger btn-sm mx-3">Details</button>
+        <button class="btn btn-outline-danger btn-sm mx-3">Clear</button>
+      </div>
+    </div>
+        <!-- Another Debt Card -->
+        <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+          <div class="d-flex justify-content-between fw-bold">
+            <span>Blaise</span>
+            <span>450,000/=</span>
+          </div>
+          <hr class="my-1 border-danger">
+          <div class="small">
+            <div class="d-flex justify-content-between">
+              <span>Date: <span>01/03/2025</span></span>
+              <span>Source: <span>Embroidery</span></span>
+            </div>
+            <span>Person: <span>Mark</span></span>
+          </div>
+          <div class="d-flex justify-content-end mt-2">
+            <button class="btn btn-outline-danger btn-sm mx-3">Details</button>
+            <button class="btn btn-outline-danger btn-sm mx-3">Clear</button>
+          </div>
+        </div>
+    <!-- Another Debt Card -->
+    <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Blaise</span>
+        <span>450,000/=</span>
+      </div>
+      <hr class="my-1 border-danger">
+      <div class="small">
+        <div class="d-flex justify-content-between">
+          <span>Date: <span>01/03/2025</span></span>
+          <span>Source: <span>Embroidery</span></span>
+        </div>
+        <span>Person: <span>Mark</span></span>
+      </div>
+      <div class="d-flex justify-content-end mt-2">
+        <button class="btn btn-outline-danger btn-sm mx-3">Details</button>
+        <button class="btn btn-outline-danger btn-sm mx-3">Clear</button>
+      </div>
+    </div>    
+  </div>
+</div>
+</div>
+
+
+<!-- Daily figures Tab -->
+<div class="tab-pane fade" id="figures" role="tabpanel">
+  <div class="px-2">
+
+    <!-- Pending Indicators -->
+    <div class="d-flex justify-content-around px-1 mb-2 small fw-bold">
+      <span id="dailyIncomes" class="text-primary activeDaily" style="cursor: pointer;" onclick="toggleDailyClass(this)">Incomes</span>
+      <span id="dailyExpenses" class="text-danger" style="cursor: pointer;" onclick="toggleDailyClass(this)">Expenses</span>
+    </div>
+
+    <!-- Filter & Sort Dropdown -->
+    <div class="dropdown mb-2">
+      <button class="btn btn-outline-dark fw-bold w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter & Sort
+      </button>
+      <div class="dropdown-menu p-3 shadow" style="width: 100%;">
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Source</label>
+          <select class="form-select form-select-sm">
+            <option>All</option>
+            <option>Customer</option>
+            <option>Supplier</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Amount</label>
+          <input type="number" class="form-control form-control-sm">
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Account</label>
+          <select class="form-select form-select-sm">
+            <option>All</option>
+            <option>Cash</option>
+            <option>Mobile Money</option>
+            <option>Bank</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label mb-0 small">Person</label>
+          <select class="form-select form-select-sm">
+            <option>All</option>
+            <option>Mark</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+
+ <!-- Daily Incomes --> 
+ <div id="dailyIncomesValues" class="row mt-2 px-2 activeDailyValues" style="max-height: 65vh; overflow-y: auto;">
+  <!-- Debt Cards -->
+  <h3 class="mt-3">01/03/2025</h3>
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Blaise</span>
+      <span>450,000/=</span>
+    </div>
+    <hr class="my-1 border-primary">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Source: <span>Embroidery</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-primary btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#incomeDetailModal1" style="color: black;">Details</button>
+    </div>
+  </div>
+
+  <!-- Another Debt Card -->
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Joy P/S</span>
+      <span>700,000/=</span>
+    </div>
+    <hr class="my-1 border-primary">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Source: <span>Shirt Print</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>
+
+  <!-- Another Debt Card -->
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Shop 6</span>
+      <span>50,000/=</span>
+    </div>
+    <hr class="my-1 border-primary">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Source: <span>Repairs</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>
+  <h3 class="mt-3">02/03/2025</h3>
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Blaise</span>
+      <span>450,000/=</span>
+    </div>
+    <hr class="my-1 border-primary">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Source: <span>Embroidery</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>
+
+  <!-- Another Debt Card -->
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Joy P/S</span>
+      <span>700,000/=</span>
+    </div>
+    <hr class="my-1 border-primary">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Source: <span>Shirt Print</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>
+
+  <!-- Another Debt Card -->
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Shop 6</span>
+      <span>50,000/=</span>
+    </div>
+    <hr class="my-1 border-primary">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Source: <span>Repairs</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>  
+</div>
+
+
+ <!-- Daily Expenses --> 
+ <div id="dailyExpensesValues" class="row mt-2 px-2 inActiveDailyValues" style="max-height: 65vh; overflow-y: auto;">
+  <!-- Debt Cards -->
+   <h3 class="mt-3">01/03/2025</h3>
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Food</span>
+      <span>50,000/=</span>
+    </div>
+    <hr class="my-1 border-danger">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Account: <span>Mobile Money</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-danger btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#expensesDetailModal1" style="color: black;">Details</button>
+    </div>
+  </div>
+
+  <!-- Another Debt Card -->
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Transport</span>
+      <span>57,000/=</span>
+    </div>
+    <hr class="my-1 border-danger">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Account: <span>Register</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>
+
+  <!-- Another Debt Card -->
+  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+    <div class="d-flex justify-content-between fw-bold">
+      <span>Rent</span>
+      <span>500,000/=</span>
+    </div>
+    <hr class="my-1 border-danger">
+    <div class="small">
+      <div class="d-flex justify-content-between">
+        <span>Account: <span>Bank</span></span>
+        <span>Person: <span>Mark</span></span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2">
+      <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
+    </div>
+  </div>
+  <h3 class="mt-3">02/03/2025</h3>
+ <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+   <div class="d-flex justify-content-between fw-bold">
+     <span>Food</span>
+     <span>50,000/=</span>
+   </div>
+   <hr class="my-1 border-danger">
+   <div class="small">
+     <div class="d-flex justify-content-between">
+       <span>Account: <span>Mobile Money</span></span>
+       <span>Person: <span>Mark</span></span>
+     </div>
+   </div>
+   <div class="d-flex justify-content-end mt-2">
+     <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
+   </div>
+ </div>
+
+ <!-- Another Debt Card -->
+ <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+   <div class="d-flex justify-content-between fw-bold">
+     <span>Transport</span>
+     <span>77,000/=</span>
+   </div>
+   <hr class="my-1 border-danger">
+   <div class="small">
+     <div class="d-flex justify-content-between">
+       <span>Account: <span>Register</span></span>
+       <span>Person: <span>Mark</span></span>
+     </div>
+   </div>
+   <div class="d-flex justify-content-end mt-2">
+     <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
+   </div>
+ </div>
+
+ <!-- Another Debt Card -->
+ <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
+   <div class="d-flex justify-content-between fw-bold">
+     <span>Water</span>
+     <span>20,000/=</span>
+   </div>
+   <hr class="my-1 border-danger">
+   <div class="small">
+     <div class="d-flex justify-content-between">
+       <span>Account: <span>Register</span></span>
+       <span>Person: <span>Mark</span></span>
+     </div>
+   </div>
+   <div class="d-flex justify-content-end mt-2">
+     <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
+   </div>
+ </div>
+</div>
+</div>
+</div>
+
+      <!-- Summaries Tab -->
+      <div class="tab-pane fade" id="summary" role="tabpanel">
+        <div class="p-2">
+        
+          <!-- Date Range Section -->
+          <div class="position-relative mb-3 bg-light border border-secondary rounded p-3">
+            <strong style="border-bottom: solid 2px;">Period</strong>        
+            <!-- Display current date range -->             
+            <div class="d-flex justify-content-between align-items-center my-1">
+              <div id="dateRangeDisplay" class="fw-bold large text-primary mb-1">
+                20/04/2025 <span style="color: black;"> to </span>30/06/2025
+              </div>              
+              <button class="btn btn-sm btn-outline-secondary" onclick="toggleDatePicker()" style="font-size: 0.9rem;">
+                <i class="bi bi-calendar-date"></i>
+              </button>
+            </div>
+        
+            <!-- Hidden date picker (shows when icon is clicked) -->
+            <div id="datePicker" class="border rounded p-2 bg-white shadow-sm position-relative" style="z-index: 10; display: none;">
+              <label class="form-label small mb-1">Start Date</label>
+              <input type="date" id="startDate" class="form-control form-control-sm mb-2">
+              <label class="form-label small mb-1">End Date</label>
+              <input type="date" id="endDate" class="form-control form-control-sm">
+            </div>
+          </div>
+        
+          <!-- Summary -->
+          <div class="bg-white rounded shadow-sm p-3 small" style="max-height: 60vh; overflow-y: auto; font-size: medium;">
+            <div class="d-flex justify-content-between">
+              <div><strong>Income:</strong></div>
+              <div>23,900,000/=</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Expenses:</strong></div>
+              <div>12,050,000/=</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Profit:</strong></div>
+              <div>11,850,000/=</div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <div><strong>Avg Daily Income:</strong></div>
+              <div>398,333/=</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Avg Daily Expense:</strong></div>
+              <div>200,833/=</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Profit Margin:</strong></div>
+              <div>49.6%</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Expense-to-Income Ratio:</strong></div>
+              <div>50.4%</div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <div><strong>Best Sector:</strong></div>
+              <div>Embroidery</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Worst Sector:</strong></div>
+              <div>Repairs</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Top 3 Sectors:</strong></div>
+              <div>Emb, Salon, Print</div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <div><strong>Biggest Client:</strong></div>
+              <div>Zoe P/School</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Top 3 Clients:</strong></div>
+              <div>Zoe, Karen, Mike</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Biggest Expense:</strong></div>
+              <div>Rent</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Common Expense:</strong></div>
+              <div>Wages</div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <div><strong>Most Profitable Day:</strong></div>
+              <div>25/05/2025</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Least Profitable Day:</strong></div>
+              <div>05/06/2025</div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div><strong>Most Active Day:</strong></div>
+              <div>15/06/2025</div>
+            </div>
+          </div>
+        </div>
+        
+        <script>
+          function toggleDatePicker() {
+            const picker = document.getElementById("datePicker");
+            picker.style.display = picker.style.display === "none" ? "block" : "none";
+          }
+        </script>
+        
+      </div>
+    </div>
+  </div>
+
+
+  <!-- People Tab -->
+<div class="tab-pane fade" id="people" role="tabpanel">
+  <div class="px-2 mx-2">
+    <!-- Add Person Button -->
+    <div class="d-flex justify-content-start mb-2">
+      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#personModal" onclick="setupAddPerson()">Add a Person</button>
+    </div>
+
+    <!-- People List -->
+    <ul class="list-group my-3">
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>Mark</span>
+        <span>
+          <i class="bi bi-pencil-square me-3" role="button" data-bs-toggle="modal" data-bs-target="#personModal" onclick="setupEditPerson('Mark')"></i>
+          <i class="bi bi-trash" role="button" onclick="deletePerson('Mark')"></i>
+        </span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+  
+<!-- Income Modal -->
+<div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 500px;">
+    <div class="modal-content" style="padding: 15px;">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary"d="incomeModalLabel">Add Income</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Income Source -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Income Source</label>
+          <input type="text" class="form-control" id="incomeSource" placeholder="E.g. Embroidery">
+        </div>
+
+        <!-- Amount with Operators -->
+        <div class="mb-2" style="display: flex; align-items: center;">
+          <div style="flex-grow: 1;">
+            <label style="font-weight: bold; padding-bottom: 5px">Amount</label>
+            <input type="text" class="form-control" id="incomeAmount" placeholder="5000+4000 or 5000*4">
+          </div>
+        </div>
+
+        <!-- Type Radio -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Type</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input type="radio" name="type" id="inlineRadio1" value="Cash" onchange="toggleDestination()" checked>
+              <label class="form-check-label" for="inlineRadio1">Cash</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input type="radio" name="type" id="inlineRadio2" value="Debt" onchange="toggleDestination()">
+              <label class="form-check-label" for="inlineRadio2">Debt</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client Name -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Client Name</label>
+          <input type="text" class="form-control" id="clientName">
+        </div>
+
+        <!-- Destination of Funds -->
+        <div class="mb-2"  id="destinationRadios">
+          <label style="font-weight: bold;">Destination of Funds</label>
+          <div>
+            <div class="form-check form-check-inline me-0">
+              <input type="radio" name="inlineRadioOptions" id="Radio1" value="Cash" checked>
+              <label class="form-check-label" for="Radio1">Cash Register</label>
+            </div>
+            <div class="form-check form-check-inline mx-0">
+              <input type="radio" name="inlineRadioOptions" id="Radio2" value="Bank">
+              <label class="form-check-label" for="Radio2">Bank Account</label>
+            </div>
+            <div class="form-check form-check-inline ms-0">
+              <input type="radio" name="inlineRadioOptions" id="Radio3" value="MM">
+              <label class="form-check-label" for="Radio3">Mobile Money</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Date</label>
+          <input type="date" class="form-control" id="incomeDate">
+        </div>
+
+        <!-- Comments -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Comments</label>
+          <textarea class="form-control" id="incomeComments" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary me-3" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary ms-3">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+<!-- Pending Income Modal -->
+<div class="modal fade" id="pendingIncomeModal" tabindex="-1" aria-labelledby="pendingIncomeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+    <div class="modal-content" style="padding: 15px;">
+      <div class="modal-header">
+        <h5 class="modal-title text-primary" id="pendingIncomeModalLabel">Clear Income Debt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Amount -->
+        <div class="mb-2" style="display: flex; align-items: center;">
+          <div style="flex-grow: 1;">
+            <label style="font-weight: bold; padding-bottom: 5px">Amount to Clear <span>(350,000/= Left)</span></label>
+            <input type="text" class="form-control" id="pendingIncomeAmount">
+          </div>
+        </div>
+
+        <!-- Destination of Funds -->
+        <div class="mb-2"  id="debtDestinationRadios">
+          <label style="font-weight: bold;">Destination of Funds</label>
+          <div>
+            <div class="form-check form-check-inline me-0">
+              <input type="radio" name="inlinedebtDestinationRadios" id="pendingIncomeRadio1" value="Cash" checked>
+              <label class="form-check-label" for="Radio1">Cash Register</label>
+            </div>
+            <div class="form-check form-check-inline mx-0">
+              <input type="radio" name="inlinedebtDestinationRadios" id="pendingIncomeRadio2" value="Bank">
+              <label class="form-check-label" for="Radio2">Bank Account</label>
+            </div>
+            <div class="form-check form-check-inline ms-0">
+              <input type="radio" name="inlinedebtDestinationRadios" id="pendingIncomeRadio3" value="MM">
+              <label class="form-check-label" for="Radio3">Mobile Money</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Date</label>
+          <input type="date" class="form-control" id="pendingIncomeDate">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary me-3" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary ms-3">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<!-- Expense Modal -->
+<div class="modal fade fw-semibold" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 500px;">
+    <div class="modal-content" style="padding: 15px;">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="expenseModalLabel">Add Expense</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- expense Source -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Expense Source</label>
+          <input type="text" class="form-control" id="expenseName" placeholder="E.g. Food">
+        </div>
+
+        <!-- Amount -->
+        <div class="mb-2" style="display: flex; align-items: center;">
+          <div style="flex-grow: 1;">
+            <label style="font-weight: bold; padding-bottom: 5px;">Amount</label>
+            <input type="text" class="form-control" id="expenseAmount" placeholder="5000+4000 or 5000*4">
+          </div>
+        </div>
+
+        <!-- Type Dropdown -->
+        <div class="mb-2">
+          <label style="font-weight: bold;">Type</label>
+          <div class="mt-2">
+            <div class="form-check form-check-inline">
+              <input type="radio" name="expenseType" id="expenseRadio1" value="CashSource" onchange="toggleSource()" checked>
+              <label class="form-check-label" for="expenseRadio1">Cash</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input type="radio" name="expenseType" id="expenseRadio2" value="DebtSource" onchange="toggleSource()">
+              <label class="form-check-label" for="expenseRadio2">Debt</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Provider Name -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Service Provider (Optional)</label>
+          <input type="text" class="form-control" id="providerName">
+        </div>
+
+        <!-- Source of Funds -->
+        <div class="mb-2"  id="sourceRadios">
+          <label style="font-weight: bold; padding-bottom: 5px;">Source of Funds</label>
+          <div>
+          <div class="form-check form-check-inline">
+            <input type="radio" name="RadioOptions" id="Radio1expense" value="Cash" checked>
+            <label class="form-check-label" for="Radio1expense">Cash Register</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" name="RadioOptions" id="Radio2expense" value="Bank">
+            <label class="form-check-label" for="Radio2expense">Bank Account</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" name="RadioOptions" id="Radio3expense" value="MM">
+            <label class="form-check-label" for="Radio3expense">Mobile Money</label>
+          </div>
+        </div>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Date</label>
+          <input type="date" class="form-control" id="expenseDate">
+        </div>
+
+        <!-- Comments -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Comments</label>
+          <textarea class="form-control" id="expenseComments" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary me-3" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger ms-3">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Pending Expense Modal -->
+<div class="modal fade" id="pendingExpenseModal" tabindex="-1" aria-labelledby="pendingExpenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 500px;">
+    <div class="modal-content" style="padding: 15px;">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="pendingExpenseModalLabel">Clear Expense Debt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Amount -->
+        <div class="mb-2" style="display: flex; align-items: center;">
+          <div style="flex-grow: 1;">
+            <label style="font-weight: bold; padding-bottom: 5px">Amount to Clear <span>(450,000/= Left)</span></label>
+            <input type="text" class="form-control" id="pendingExpenseAmount">
+          </div>
+        </div>
+
+        <!-- Destination of Funds -->
+        <div class="mb-2"  id="debtSourceRadios">
+          <label style="font-weight: bold;">Source of Funds</label>
+          <div>
+            <div class="form-check form-check-inline me-0">
+              <input type="radio" name="inlineDebtSourceRadios" id="pendingExpenseRadio1" value="Cash" checked>
+              <label class="form-check-label btn-outline-danger" for="Radio1">Cash Register</label>
+            </div>
+            <div class="form-check form-check-inline mx-0">
+              <input type="radio" name="inlineDebtSourceRadios" id="pendingExpenseRadio2" value="Bank">
+              <label class="form-check-label" for="Radio2">Bank Account</label>
+            </div>
+            <div class="form-check form-check-inline ms-0">
+              <input type="radio" name="inlineDebtSourceRadios" id="pendingExpenseRadio3" value="MM">
+              <label class="form-check-label" for="Radio3">Mobile Money</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="mb-2">
+          <label style="font-weight: bold; padding-bottom: 5px;">Date</label>
+          <input type="date" class="form-control" id="pendingExpenseDate">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary me-3" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger ms-3">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Person Modal -->
+  <div class="modal fade" id="personModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 320px; margin: auto;">
+      <div class="modal-content" style="border-radius: 8px;">
+        <div class="modal-header py-2">
+          <h6 class="modal-title" id="personModalLabel">Add a Person</h6>
+          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <div class="modal-body p-3">
+          <!-- Username (shown only when adding) -->
+          <div class="mb-2" id="usernameField">
+            <label class="form-label mb-1">User Name</label>
+            <input type="text" class="form-control form-control-sm" id="userName">
+          </div>
+  
+          <!-- Pin -->
+          <div class="mb-2">
+            <label class="form-label mb-1">User Pin</label>
+            <input type="password" class="form-control form-control-sm" id="userPin">
+          </div>
+  
+          <!-- Shops -->
+          <div class="mb-3">
+            <label class="form-label mb-1">Shops</label>
+            <select class="form-select form-select-sm" id="userShops" multiple>
+              <option>Kiyembe</option>
+              <option>Nasser</option>
+            </select>
+          </div>
+  
+          <!-- Buttons -->
+          <div class="d-flex justify-content-end mt-3 pt-3">
+            <button class="btn btn-outline-secondary btn-sm me-3" data-bs-dismiss="modal">Cancel</button>
+            <button class="btn btn-primary btn-sm ms-3">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Pending Incomes Detail Modal -->
+
+<div class="modal fade" id="pendingIncomeDetailModal1" tabindex="-1" aria-labelledby="pendingIncomeDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-primary">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="pendingIncomeDetailModal1Label">Loan Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body table-responsive">
+        <div class="d-flex align-items-center justify-content-between">
+          <h6 class="fw-bold text-primary mb-3">Summary</h6>
+          <div class="text-end mb-2 px-3">
+            <button id="editBtn1" class="btn btn-outline-primary btn-sm">Edit</button>
+            <button id="saveBtn1" class="btn btn-primary btn-sm d-none">Save</button>
+            <button id="cancelBtn1" class="btn btn-secondary btn-sm d-none">Cancel</button>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped nowrap-table" id="summaryTable1">
+          <tbody>
+            <tr><th>Client</th><td data-field="client">Eddie</td></tr>
+            <tr><th>Transaction Amount</th><td data-field="amount">UGX 350,000</td></tr>
+            <tr><th>Transaction Date</th><td data-field="date">Mar 01, 2025</td></tr>
+            <tr><th>Item Sold</th><td data-field="item">Embroidery</td></tr>
+            <tr><th>Sold By</th><td data-field="soldBy">Mark</td></tr>
+            <tr><th>Comments</th><td data-field="comments">Promised to Clear in two days</td></tr>
+          </tbody>
+        </table>
+
+        <h6 class="fw-bold text-primary mt-4 mb-3">Payment History</h6>
+        <table class="table table-bordered table-striped nowrap-table" id="paymentTable1">
+          <thead class="table-primary">
+            <tr>
+              <th>Amount (UGX)</th>
+              <th>Date</th>
+              <th>Recorded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-field="amount">250,000</td>
+              <td data-field="date">Mar 2, 2025</td>
+              <td data-field="recorder">Mark</td>
+            </tr>
+            <tr>
+              <td data-field="amount">50,000</td>
+              <td data-field="date">Mar 3, 2025</td>
+              <td data-field="recorder">Sharon</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Incomes Detail Modal -->
+
+<div class="modal fade" id="incomeDetailModal1" tabindex="-1" aria-labelledby="incomeDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-primary">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="incomeDetailModal1Label">Income Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body table-responsive">
+        <div class="d-flex align-items-center justify-content-between">
+          <h6 class="fw-bold text-primary mb-3">Summary</h6>
+          <div class="text-end mb-2 px-3">
+            <button id="editBtn3" class="btn btn-outline-primary btn-sm">Edit</button>
+            <button id="saveBtn3" class="btn btn-primary btn-sm d-none">Save</button>
+            <button id="cancelBtn3" class="btn btn-secondary btn-sm d-none">Cancel</button>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped nowrap-table" id="summaryTable3">
+          <tbody>
+            <tr><th>Client</th><td data-field="client">Eddie</td></tr>
+            <tr><th>Transaction Amount</th><td data-field="amount">UGX 350,000</td></tr>
+            <tr><th>Transaction Date</th><td data-field="date">Mar 01, 2025</td></tr>
+            <tr><th>Item Sold</th><td data-field="item">Embroidery</td></tr>
+            <tr><th>Sold By</th><td data-field="soldBy">Mark</td></tr>
+            <tr><th>Comments</th><td data-field="comments">Promised to Clear in two days. Cleared after 6 days</td></tr>
+          </tbody>
+        </table>
+
+        <h6 class="fw-bold text-primary mt-4 mb-3">Payment History</h6>
+        <table class="table table-bordered table-striped nowrap-table" id="paymentTable3">
+          <thead class="table-primary">
+            <tr>
+              <th>Amount (UGX)</th>
+              <th>Date</th>
+              <th>Recorded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-field="amount">250,000</td>
+              <td data-field="date">Mar 2, 2025</td>
+              <td data-field="recorder">Mark</td>
+            </tr>
+            <tr>
+              <td data-field="amount">50,000</td>
+              <td data-field="date">Mar 3, 2025</td>
+              <td data-field="recorder">Sharon</td>
+            </tr>
+            <td data-field="amount">100,000</td>
+            <td data-field="date">Mar 8, 2025</td>
+            <td data-field="recorder">Sharon</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Expenses Detail Modal -->
+<div class="modal fade" id="expensesDetailModal1" tabindex="-1" aria-labelledby="expenseDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="expenseDetailModal1Label">Expense Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body table-responsive">
+        <div class="d-flex align-items-center justify-content-between">
+          <h6 class="fw-bold text-danger mb-3">Summary</h6>
+          <div class="text-end mb-2 px-3">
+            <button id="editBtn4" class="btn btn-outline-danger btn-sm">Edit</button>
+            <button id="saveBtn4" class="btn btn-danger btn-sm d-none">Save</button>
+            <button id="cancelBtn4" class="btn btn-secondary btn-sm d-none">Cancel</button>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped nowrap-table" id="summaryTable4">
+          <tbody>
+            <tr><th>Service Provider</th><td data-field="client">Joan</td></tr>
+            <tr><th>Transaction Amount</th><td data-field="amount">UGX 50,000</td></tr>
+            <tr><th>Transaction Date</th><td data-field="date">Mar 01, 2025</td></tr>
+            <tr><th>Item Bought</th><td data-field="item">Food</td></tr>
+            <tr><th>Bought By</th><td data-field="soldBy">Mark</td></tr>
+            <tr><th>Comments</th><td data-field="comments">None</td></tr>
+          </tbody>
+        </table>
+
+        <h6 class="fw-bold text-danger mt-4 mb-3">Payment History</h6>
+        <table class="table table-bordered table-striped nowrap-table" id="paymentTable4">
+          <thead class="table-danger">
+            <tr>
+              <th>Amount (UGX)</th>
+              <th>Date</th>
+              <th>Recorded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-field="amount">50,000</td>
+              <td data-field="date">Mar 1, 2025</td>
+              <td data-field="recorder">Mark</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pending Expenses Detail Modal -->
+<div class="modal fade" id="pendingExpenseDetailModal1" tabindex="-1" aria-labelledby="pendingExpenseDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="pendingExpenseDetailModal1Label">Loan Details</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body table-responsive">
+        <div class="d-flex align-items-center justify-content-between">
+          <h6 class="fw-bold text-danger mb-3">Summary</h6>
+          <div class="text-end mb-2 px-3">
+            <button id="editBtn2" class="btn btn-outline-danger btn-sm">Edit</button>
+            <button id="saveBtn2" class="btn btn-danger btn-sm d-none">Save</button>
+            <button id="cancelBtn2" class="btn btn-secondary btn-sm d-none">Cancel</button>
+          </div>
+        </div>
+        <table class="table table-bordered table-striped nowrap-table" id="summaryTable2">
+          <tbody>
+            <tr><th>Service Provider</th><td data-field="client">Blaise</td></tr>
+            <tr><th>Transaction Amount</th><td data-field="amount">UGX 450,000</td></tr>
+            <tr><th>Transaction Date</th><td data-field="date">Mar 01, 2025</td></tr>
+            <tr><th>Item Bought</th><td data-field="item">Embroidery</td></tr>
+            <tr><th>Bought By</th><td data-field="soldBy">Mark</td></tr>
+            <tr><th>Comments</th><td data-field="comments">Promised to Clear in two days</td></tr>
+          </tbody>
+        </table>
+
+        <h6 class="fw-bold text-danger mt-4 mb-3">Payment History</h6>
+        <table class="table table-bordered table-striped nowrap-table" id="paymentTable2">
+          <thead class="table-danger">
+            <tr>
+              <th>Amount (UGX)</th>
+              <th>Date</th>
+              <th>Recorded By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-field="amount">250,000</td>
+              <td data-field="date">Mar 2, 2025</td>
+              <td data-field="recorder">Mark</td>
+            </tr>
+            <tr>
+              <td data-field="amount">50,000</td>
+              <td data-field="date">Mar 3, 2025</td>
+              <td data-field="recorder">Sharon</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- Bootstrap JS Bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const editBtn1 = document.getElementById("editBtn1");
+    const saveBtn1 = document.getElementById("saveBtn1");
+    const cancelBtn1 = document.getElementById("cancelBtn1");
+  
+    const summaryTable1 = document.getElementById("summaryTable1");
+    const paymentTable1 = document.getElementById("paymentTable1");
+  
+    let originalSummary1 = {};
+    let originalPayments1 = [];
+  
+    editBtn1.onclick = () => {
+      // Convert Summary Table cells
+      originalSummary1 = {};
+      summaryTable1.querySelectorAll("td[data-field]").forEach(td => {
+        const field = td.dataset.field;
+        const val = td.textContent.trim();
+        originalSummary1[field] = val;
+        td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+      });
+  
+      // Convert Payment Table cells
+      originalPayments1 = [];
+      paymentTable1.querySelectorAll("tbody tr").forEach((row, i) => {
+        const rowData = {};
+        row.querySelectorAll("td").forEach(td => {
+          const field = td.dataset.field;
+          const val = td.textContent.trim();
+          rowData[field] = val;
+          td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+        });
+        originalPayments1.push(rowData);
+      });
+  
+      toggleEditMode(true);
+    };
+  
+    cancelBtn1.onclick = () => {
+      // Restore Summary Table
+      summaryTable1.querySelectorAll("td[data-field]").forEach(td => {
+        const field = td.dataset.field;
+        td.textContent = originalSummary1[field];
+      });
+  
+      // Restore Payment Table
+      paymentTable1.querySelectorAll("tbody tr").forEach((row, i) => {
+        row.querySelectorAll("td").forEach(td => {
+          const field = td.dataset.field;
+          td.textContent = originalPayments1[i][field];
+        });
+      });
+  
+      toggleEditMode(false);
+    };
+  
+    saveBtn1.onclick = () => {
+      const updatedSummary = {};
+      summaryTable1.querySelectorAll("td[data-field]").forEach(td => {
+        const input = td.querySelector("input");
+        if (input) {
+          updatedSummary[input.name] = input.value;
+          td.textContent = input.value;
+        }
+      });
+  
+      const updatedPayments = [];
+      paymentTable1.querySelectorAll("tbody tr").forEach(row => {
+        const rowData = {};
+        row.querySelectorAll("td").forEach(td => {
+          const input = td.querySelector("input");
+          if (input) {
+            rowData[input.name] = input.value;
+            td.textContent = input.value;
+          }
+        });
+        updatedPayments.push(rowData);
+      });
+  
+      console.log("Updated Summary:", updatedSummary);
+      console.log("Updated Payments:", updatedPayments);
+  
+      toggleEditMode(false);
+    };
+  
+    function toggleEditMode(isEditing) {
+      editBtn1.classList.toggle("d-none", isEditing);
+      saveBtn1.classList.toggle("d-none", !isEditing);
+      cancelBtn1.classList.toggle("d-none", !isEditing);
+    }
+  </script>
+  
+  <script>
+    const editBtn2 = document.getElementById("editBtn2");
+    const saveBtn2 = document.getElementById("saveBtn2");
+    const cancelBtn2 = document.getElementById("cancelBtn2");
+  
+    const summaryTable2 = document.getElementById("summaryTable2");
+    const paymentTable2 = document.getElementById("paymentTable2");
+  
+    let originalSummary2 = {};
+    let originalPayments2 = [];
+  
+    editBtn2.onclick = () => {
+      // Convert Summary Table cells
+      originalSummary2 = {};
+      summaryTable2.querySelectorAll("td[data-field]").forEach(td => {
+        const field = td.dataset.field;
+        const val = td.textContent.trim();
+        originalSummary2[field] = val;
+        td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+      });
+  
+      // Convert Payment Table cells
+      originalPayments2 = [];
+      paymentTable2.querySelectorAll("tbody tr").forEach((row, i) => {
+        const rowData = {};
+        row.querySelectorAll("td").forEach(td => {
+          const field = td.dataset.field;
+          const val = td.textContent.trim();
+          rowData[field] = val;
+          td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+        });
+        originalPayments2.push(rowData);
+      });
+  
+      toggleEditMode2(true);
+    };
+  
+    cancelBtn2.onclick = () => {
+      // Restore Summary Table
+      summaryTable2.querySelectorAll("td[data-field]").forEach(td => {
+        const field = td.dataset.field;
+        td.textContent = originalSummary2[field];
+      });
+  
+      // Restore Payment Table
+      paymentTable2.querySelectorAll("tbody tr").forEach((row, i) => {
+        row.querySelectorAll("td").forEach(td => {
+          const field = td.dataset.field;
+          td.textContent = originalPayments2[i][field];
+        });
+      });
+  
+      toggleEditMode2(false);
+    };
+  
+    saveBtn2.onclick = () => {
+      const updatedSummary = {};
+      summaryTable2.querySelectorAll("td[data-field]").forEach(td => {
+        const input = td.querySelector("input");
+        if (input) {
+          updatedSummary[input.name] = input.value;
+          td.textContent = input.value;
+        }
+      });
+  
+      const updatedPayments = [];
+      paymentTable2.querySelectorAll("tbody tr").forEach(row => {
+        const rowData = {};
+        row.querySelectorAll("td").forEach(td => {
+          const input = td.querySelector("input");
+          if (input) {
+            rowData[input.name] = input.value;
+            td.textContent = input.value;
+          }
+        });
+        updatedPayments.push(rowData);
+      });
+  
+      console.log("Updated Summary:", updatedSummary);
+      console.log("Updated Payments:", updatedPayments);
+  
+      toggleEditMode2(false);
+    };
+  
+    function toggleEditMode2(isEditing) {
+      editBtn2.classList.toggle("d-none", isEditing);
+      saveBtn2.classList.toggle("d-none", !isEditing);
+      cancelBtn2.classList.toggle("d-none", !isEditing);
+    }
+  </script>
+  
+  <script>
+    const editBtn3 = document.getElementById("editBtn3");
+    const saveBtn3 = document.getElementById("saveBtn3");
+    const cancelBtn3 = document.getElementById("cancelBtn3");
+  
+    const summaryTable3 = document.getElementById("summaryTable3");
+    const paymentTable3 = document.getElementById("paymentTable3");
+  
+    let originalSummary3 = {};
+    let originalPayments3 = [];
+  
+    editBtn3.onclick = () => {
+      originalSummary3 = {};
+      summaryTable3.querySelectorAll("td[data-field]").forEach(td => {
+        const field = td.dataset.field;
+        const val = td.textContent.trim();
+        originalSummary3[field] = val;
+        td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+      });
+  
+      originalPayments3 = [];
+      paymentTable3.querySelectorAll("tbody tr").forEach((row, i) => {
+        const rowData = {};
+        row.querySelectorAll("td").forEach(td => {
+          const field = td.dataset.field;
+          const val = td.textContent.trim();
+          rowData[field] = val;
+          td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+        });
+        originalPayments3.push(rowData);
+      });
+  
+      toggleEditMode3(true);
+    };
+  
+    cancelBtn3.onclick = () => {
+      summaryTable3.querySelectorAll("td[data-field]").forEach(td => {
+        const field = td.dataset.field;
+        td.textContent = originalSummary3[field];
+      });
+  
+      paymentTable3.querySelectorAll("tbody tr").forEach((row, i) => {
+        row.querySelectorAll("td").forEach(td => {
+          const field = td.dataset.field;
+          td.textContent = originalPayments3[i][field];
+        });
+      });
+  
+      toggleEditMode3(false);
+    };
+  
+    saveBtn3.onclick = () => {
+      const updatedSummary = {};
+      summaryTable3.querySelectorAll("td[data-field]").forEach(td => {
+        const input = td.querySelector("input");
+        if (input) {
+          updatedSummary[input.name] = input.value;
+          td.textContent = input.value;
+        }
+      });
+  
+      const updatedPayments = [];
+      paymentTable3.querySelectorAll("tbody tr").forEach(row => {
+        const rowData = {};
+        row.querySelectorAll("td").forEach(td => {
+          const input = td.querySelector("input");
+          if (input) {
+            rowData[input.name] = input.value;
+            td.textContent = input.value;
+          }
+        });
+        updatedPayments.push(rowData);
+      });
+  
+      console.log("Updated Summary 3:", updatedSummary);
+      console.log("Updated Payments 3:", updatedPayments);
+  
+      toggleEditMode3(false);
+    };
+  
+    function toggleEditMode3(isEditing) {
+      editBtn3.classList.toggle("d-none", isEditing);
+      saveBtn3.classList.toggle("d-none", !isEditing);
+      cancelBtn3.classList.toggle("d-none", !isEditing);
+    }
+  </script>
+
+<script>
+  const editBtn4 = document.getElementById("editBtn4");
+  const saveBtn4 = document.getElementById("saveBtn4");
+  const cancelBtn4 = document.getElementById("cancelBtn4");
+
+  const summaryTable4 = document.getElementById("summaryTable4");
+  const paymentTable4 = document.getElementById("paymentTable4");
+
+  let originalSummary4 = {};
+  let originalPayments4 = [];
+
+  editBtn4.onclick = () => {
+    originalSummary4 = {};
+    summaryTable4.querySelectorAll("td[data-field]").forEach(td => {
+      const field = td.dataset.field;
+      const val = td.textContent.trim();
+      originalSummary4[field] = val;
+      td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+    });
+
+    originalPayments4 = [];
+    paymentTable4.querySelectorAll("tbody tr").forEach((row, i) => {
+      const rowData = {};
+      row.querySelectorAll("td").forEach(td => {
+        const field = td.dataset.field;
+        const val = td.textContent.trim();
+        rowData[field] = val;
+        td.innerHTML = `<input class="form-control form-control-sm" name="${field}" value="${val}">`;
+      });
+      originalPayments4.push(rowData);
+    });
+
+    toggleEditMode4(true);
+  };
+
+  cancelBtn4.onclick = () => {
+    summaryTable4.querySelectorAll("td[data-field]").forEach(td => {
+      const field = td.dataset.field;
+      td.textContent = originalSummary4[field];
+    });
+
+    paymentTable4.querySelectorAll("tbody tr").forEach((row, i) => {
+      row.querySelectorAll("td").forEach(td => {
+        const field = td.dataset.field;
+        td.textContent = originalPayments4[i][field];
+      });
+    });
+
+    toggleEditMode4(false);
+  };
+
+  saveBtn4.onclick = () => {
+    const updatedSummary = {};
+    summaryTable4.querySelectorAll("td[data-field]").forEach(td => {
+      const input = td.querySelector("input");
+      if (input) {
+        updatedSummary[input.name] = input.value;
+        td.textContent = input.value;
+      }
+    });
+
+    const updatedPayments = [];
+    paymentTable4.querySelectorAll("tbody tr").forEach(row => {
+      const rowData = {};
+      row.querySelectorAll("td").forEach(td => {
+        const input = td.querySelector("input");
+        if (input) {
+          rowData[input.name] = input.value;
+          td.textContent = input.value;
+        }
+      });
+      updatedPayments.push(rowData);
+    });
+
+    console.log("Updated Summary 4:", updatedSummary);
+    console.log("Updated Payments 4:", updatedPayments);
+
+    toggleEditMode4(false);
+  };
+
+  function toggleEditMode4(isEditing) {
+    editBtn4.classList.toggle("d-none", isEditing);
+    saveBtn4.classList.toggle("d-none", !isEditing);
+    cancelBtn4.classList.toggle("d-none", !isEditing);
+  }
+</script>
+
+  <script>
+    const incomesBtn = document.getElementById('toggleIncomes');
+    const expensesBtn = document.getElementById('toggleExpenses');
+    const incomesSection = document.getElementById('incomesSection');
+    const expensesSection = document.getElementById('expensesSection');
+  
+    incomesBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      incomesBtn.classList.add('text-primary');
+      expensesBtn.classList.remove('text-danger');
+      incomesSection.classList.remove('d-none');
+      expensesSection.classList.add('d-none');
+    });
+  
+    expensesBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      expensesBtn.classList.add('text-danger');
+      incomesBtn.classList.remove('text-primary');
+      expensesSection.classList.remove('d-none');
+      incomesSection.classList.add('d-none');
+    });
+  </script>
+  <script>
+    function setupAddPerson() {
+      document.getElementById('personModalLabel').textContent = 'Add a Person';
+      document.getElementById('usernameField').style.display = 'block';
+      document.getElementById('userName').value = '';
+      document.getElementById('userPin').value = '';
+    }
+  
+    function setupEditPerson(name) {
+      document.getElementById('personModalLabel').textContent = 'Edit ' + name;
+      document.getElementById('usernameField').style.display = 'none';
+      document.getElementById('userPin').value = '';
+    }
+  
+    function deletePerson(name) {
+      if (confirm(`Are you sure you want to delete ${name}?`)) {
+        // delete logic here
+      }
+    }
+  </script>
+  <script>
+    function toggleDestination() {
+  // Find the radio button with name="type" that is currently checked
+  const selectedRadio = document.querySelector('input[name="type"]:checked');
+
+  // Get its value, or null if none is checked (though 'checked' attribute usually prevents this)
+  const type = selectedRadio ? selectedRadio.value : null;
+
+  const destination = document.getElementById("destinationRadios");
+
+  if (destination) { // Check if destination element exists before trying to hide it
+      if (type === "Debt") {
+        destination.style.display = "none";
+      } else {
+        // Optional: Show the destination element if the type is not "Debt"
+        destination.style.display = ""; // Or "block", "flex", etc., depending on original display type
+      }
+  } else {
+      console.error("Element with ID 'destinationRadios' not found.");
+  }
+}
+
+function toggleSource() {
+  // Find the radio button with name="type" that is currently checked
+  const selectedRadio = document.querySelector('input[name="expenseType"]:checked');
+
+  // Get its value, or null if none is checked (though 'checked' attribute usually prevents this)
+  const type = selectedRadio ? selectedRadio.value : null;
+
+  const source = document.getElementById("sourceRadios");
+
+  if (source) { // Check if destination element exists before trying to hide it
+      if (type === "DebtSource") {
+        source.style.display = "none";
+      } else {
+        // Optional: Show the destination element if the type is not "Debt"
+        source.style.display = "";
+      }
+  } else {
+      console.error("Element with ID 'sourceRadios' not found.");
+  }
+}
+
+function addIncomeFromCard(cardElement) {
+    const sourceName = cardElement.querySelector('.card-body').innerText.trim();
+    addIncome(sourceName);
+  }
+
+function addIncome(source = "") {
+    document.getElementById("incomeSource").value = source || "";
+    document.getElementById("incomeAmount").value = "";
+    document.getElementById("clientName").value = "";
+    document.getElementById("fundDestination").value = "";
+    document.getElementById("incomeType").value = "Cash";
+    document.getElementById("incomeDate").value = new Date().toISOString().split('T')[0];
+    document.getElementById("incomeComments").value = "";
+  }
+
+  function addExpenseFromCard(cardElement) {
+    const expenseName = cardElement.querySelector('.card-body').innerText.trim();
+    addExpense(expenseName);
+  }
+
+function addExpense(name = "") {
+    document.getElementById("expenseName").value = name || "";
+    document.getElementById("expenseAmount").value = "";
+    document.getElementById("providerName").value = "";
+    document.getElementById("fundSources").value = "";
+    document.getElementById("expenseType").value = "Cash";
+    document.getElementById("expenseDate").value = new Date().toISOString().split('T')[0];
+    document.getElementById("expenseComments").value = "";
+  }
+
+  function toggleDebtClass(selectedElement) {
+    const debtExpensesElement = document.getElementById("debtExpenses");
+    const debtIncomesElement = document.getElementById("debtIncomes");
+    const debtExpensesValuesElement = document.getElementById("debtExpensesValues");
+    const debtIncomesValuesElement = document.getElementById("debtIncomesValues");
+
+    // Basic check to ensure essential elements exist
+    if (!debtExpensesElement || !debtIncomesElement || !debtExpensesValuesElement || !debtIncomesValuesElement) {
+        console.error("One or more required elements (debtExpenses, debtIncomes, debtExpensesValues, debtIncomesValues) not found.");
+        return; // Exit the function if elements are missing
+    }
+
+    const activeClass = 'activeDebt';
+    const activeValuesClass = 'activeDebtValues';
+    const inactiveValuesClass = 'inActiveDebtValues';
+
+    // First, remove classes from both main elements and both values elements
+    debtExpensesElement.classList.remove(activeClass);
+    debtIncomesElement.classList.remove(activeClass);
+
+    debtExpensesValuesElement.classList.remove(activeValuesClass, inactiveValuesClass);
+    debtIncomesValuesElement.classList.remove(activeValuesClass, inactiveValuesClass);
+
+
+    // Now, add classes based on the selected element
+    if (selectedElement === debtExpensesElement) {
+        // If Expenses is selected
+        selectedElement.classList.add(activeClass); // Add active to Expenses main element
+        debtExpensesValuesElement.classList.add(activeValuesClass); // Add active to Expenses values
+        debtIncomesValuesElement.classList.add(inactiveValuesClass); // Add inactive to Incomes values
+
+    } else if (selectedElement === debtIncomesElement) {
+        // If Incomes is selected
+        selectedElement.classList.add(activeClass); // Add active to Incomes main element
+        debtIncomesValuesElement.classList.add(activeValuesClass); // Add active to Incomes values
+        debtExpensesValuesElement.classList.add(inactiveValuesClass); // Add inactive to Expenses values
+
+    } else {
+        // Handle case where selectedElement is neither (optional, but good practice)
+        console.warn("toggleDebtClass called with an element that is neither debtExpenses nor debtIncomes:", selectedElement);
+    }
+}
+
+
+function toggleDailyClass(selectedElement) {
+    const dailyExpensesElement = document.getElementById("dailyExpenses");
+    const dailyIncomesElement = document.getElementById("dailyIncomes");
+    const dailyExpensesValuesElement = document.getElementById("dailyExpensesValues");
+    const dailyIncomesValuesElement = document.getElementById("dailyIncomesValues");
+
+    // Basic check to ensure essential elements exist
+    if (!dailyExpensesElement || !dailyIncomesElement || !dailyExpensesValuesElement || !dailyIncomesValuesElement) {
+        console.error("One or more required elements (dailyExpenses, dailyIncomes, dailyExpensesValues, dailyIncomesValues) not found.");
+        return; // Exit the function if elements are missing
+    }
+
+    const activeClass = 'activeDaily';
+    const activeValuesClass = 'activeDailyValues';
+    const inactiveValuesClass = 'inActiveDailyValues';
+
+    // First, remove classes from both main elements and both values elements
+    dailyExpensesElement.classList.remove(activeClass);
+    dailyIncomesElement.classList.remove(activeClass);
+
+    dailyExpensesValuesElement.classList.remove(activeValuesClass, inactiveValuesClass);
+    dailyIncomesValuesElement.classList.remove(activeValuesClass, inactiveValuesClass);
+
+
+    // Now, add classes based on the selected element
+    if (selectedElement === dailyExpensesElement) {
+        // If Expenses is selected
+        selectedElement.classList.add(activeClass); // Add active to Expenses main element
+        dailyExpensesValuesElement.classList.add(activeValuesClass); // Add active to Expenses values
+        dailyIncomesValuesElement.classList.add(inactiveValuesClass); // Add inactive to Incomes values
+
+    } else if (selectedElement === dailyIncomesElement) {
+        // If Incomes is selected
+        selectedElement.classList.add(activeClass); // Add active to Incomes main element
+        dailyIncomesValuesElement.classList.add(activeValuesClass); // Add active to Incomes values
+        dailyExpensesValuesElement.classList.add(inactiveValuesClass); // Add inactive to Expenses values
+
+    } else {
+        // Handle case where selectedElement is neither (optional, but good practice)
+        console.warn("toggleDebtClass called with an element that is neither dailyExpenses nor dailyIncomes:", selectedElement);
+    }
+}
+  </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const dropdownToggleButton = document.getElementById('dropdownMenuButton');
+  
+      // Get a reference to the specific <span> element that holds the text
+      // We use querySelector to find the first <span> child inside the dropdown button
+      const dropdownTextSpan = dropdownToggleButton.querySelector('span.flex-grow-1'); // More specific selector
+  
+      // Get all the dropdown items that have the class 'location-dropdown-item'
+      const dropdownItems = document.querySelectorAll('.dropdown-menu .location-dropdown-item');
+  
+      // Loop through each dropdown item and add a click event listener
+      dropdownItems.forEach(item => {
+          item.addEventListener('click', function(event) {
+              event.preventDefault(); // Prevent the default link behavior
+  
+              // IMPORTANT: Update the text content of the SPAN element, not the entire button
+              if (dropdownTextSpan) { // Always good to check if the element was found
+                  dropdownTextSpan.textContent = this.textContent;
+              } else {
+                  console.warn("Could not find the text span inside the dropdown button.");
+                  // Fallback if the span isn't found (though it should be)
+                  dropdownToggleButton.textContent = this.textContent; 
+              }
+          });
+      });
+  });
+  </script>
+  
+</body>
+</html>
