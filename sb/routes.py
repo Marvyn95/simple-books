@@ -141,7 +141,8 @@ def update_password():
 def delete_sales_category():
     form_data = request.form
     user = db.Users.find_one({"user_name": session.get("username")})
-    db.Organization.update_one(
+    print(user)
+    db.Organizations.update_one(
         {"_id": user["organization"]},
         {"$pull": {"income_categories": {"category_name": form_data["category"]}}}
     )
@@ -152,7 +153,7 @@ def delete_sales_category():
 def delete_expense_category():
     form_data = request.form
     user = db.Users.find_one({"user_name": session.get("username")})
-    db.Organization.update_one(
+    db.Organizations.update_one(
         {"_id": user["organization"]},
         {"$pull": {"expense_categories": {"category_name": form_data["category"]}}}
     )
