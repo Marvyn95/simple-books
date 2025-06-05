@@ -1,6 +1,7 @@
 from sb import app, db, bcrypt
 from flask import render_template, request, session, flash, redirect, url_for
 import datetime
+from bson.objectid import ObjectId
 
 @app.route("/register_owner", methods=["GET", "POST"])
 def register_owner():
@@ -86,19 +87,90 @@ def register_emp():
             return redirect(url_for("home"))
         else:
             flash("That user name is already registered, use another!", "error")
-            return redirect(url_for("register_emp"))
-    return render_template("register_emp.html", locations = user_data["locations"])
+            return redirect(url_for("home"))
+    return redirect(url_for("home"))
+
+@app.route("/delete_emp", methods=["POST"])
+def delete_emp():
+    if request.method == "POST":
+        form_data = request.form
+        print(type(form_data["emp_id"]))
+        db.Users.delete_one({"_id": ObjectId(form_data["emp_id"])})
+        flash(f"{form_data['emp_name']} has been deleted successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        return redirect(url_for("home"))
+    
+@app.route("/edit_employee", methods=["POST"])
+def edit_employee():
+    if request.method == "POST":
+        employee_new_info = request.form
+        employee_old_info = db.Users.find_one({"_id": ObjectId(employee_new_info["emp_id"])})
+        db.Users.delete_one({"_id": ObjectId(employee_new_info["emp_id"])})
+        if employee_new_info["name"] != employee_old_info["user_name"]:
+            if db.Users.find_one({"user_name": employee_new_info["name"]}) is None:
+                employee_old_info["user_name"] = employee_new_info["name"]
+            else:
+                flash("That user name is already registered, use another!", "error")
+                db.Users.insert_one(employee_old_info)
+                return redirect(url_for("home"))
+        employee_old_info["locations"] = [(employee_new_info["location"])]
+        db.Users.insert_one(employee_old_info)
+        flash("Employee data has been updated successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        return redirect(url_for("home"))
+    
+@app.route('/update_password', methods=['POST'])
+def update_password():
+    if request.method == "POST":
+        form_data = request.form
+        if form_data["new_password"] != form_data["confirm_password"]:
+            flash("Passwords do not match!", "danger")
+            return redirect(request.referrer)
+        else:
+            db.Users.update_one({"_id": ObjectId(form_data["user_id"])},{"$set": {
+                "password": bcrypt.generate_password_hash(form_data["new_password"]).decode("utf-8")
+            }})
+            flash("Password updated successfully", "success")
+            return redirect(url_for('home'))
+    else:
+        return redirect(url_for('home'))
+    
+@app.route("/delete_sales_category", methods=["POST"])
+def delete_sales_category():
+    form_data = request.form
+    user = db.Users.find_one({"user_name": session.get("username")})
+    db.Organization.update_one(
+        {"_id": user["organization"]},
+        {"$pull": {"income_categories": {"category_name": form_data["category"]}}}
+    )
+    flash("Category deleted successfuly", "success")
+    return redirect(url_for("home"))
+
+@app.route("/delete_expense_category", methods=["POST"])
+def delete_expense_category():
+    form_data = request.form
+    user = db.Users.find_one({"user_name": session.get("username")})
+    db.Organization.update_one(
+        {"_id": user["organization"]},
+        {"$pull": {"expense_categories": {"category_name": form_data["category"]}}}
+    )
+    flash("Category deleted successfuly", "success")
+    return redirect(url_for("home"))
 
 
 @app.route("/home", methods=["GET", "POST"])
 def home():
     user = db.Users.find_one({"user_name": session.get("username")})
     org = db.Organizations.find_one({"_id": user["organization"]})
+    org_employees = db.Users.find({"organization": user["organization"]})
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
     return render_template("home_2.html",
                             user = user,
-                            org = org, 
+                            org = org,
+                            org_employees = org_employees,
                             org_income_categories = org_income_categories, 
                             org_expense_categories = org_expense_categories)
 
@@ -154,7 +226,6 @@ def add_sale():
     if request.method == "POST":
         form_data = request.form
         user = db.Users.find_one({"user_name": session.get("username")})
-
         db.Sales.insert_one({
             "logger_id": user["_id"],
             "organization_id": user["organization"],

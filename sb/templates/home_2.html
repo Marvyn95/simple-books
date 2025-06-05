@@ -197,7 +197,107 @@
 {% endfor %}
 
 
+<!-- Add People / Employee Modal -->
+<div class="modal fade" id="personModal" tabindex="-1" aria-labelledby="personModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title" id="personModalLabel">Register New Employee</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
 
+      <div class="modal-body px-4 py-3">
+        <p class="text-muted text-center mb-3">Register your business employees</p>
+        <form action="{{ url_for('register_emp') }}" method="POST">
+
+          <!-- Username -->
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+
+          <!-- Location -->
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <select class="form-select" name="location" id="location" required>
+              <option value="" disabled selected>-- Select Employee location --</option>
+              {% for loc in user["locations"] %}
+                <option value="{{ loc }}">{{ loc }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Submit -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">
+              Register Employee
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- manage sales categories model -->
+<div class="modal fade" id="manageSalesCategoriesModal" tabindex="-1" aria-labelledby="manageSalesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="manageSalesLabel">Manage Sales Categories</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group">
+          {% for cat in org_income_categories %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ cat }}
+              <form action="{{ url_for('delete_sales_category') }}" method="POST" class="ms-2">
+                <input type="hidden" name="category" value="{{ cat }}">
+                <button type="submit" class="btn btn-sm btn-danger" {% if user.role != 'Owner' %}disabled{% endif %}>
+                  Delete
+                </button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- manage expenses categories model -->
+<div class="modal fade" id="manageExpenseCategoriesModal" tabindex="-1" aria-labelledby="manageExpenseLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="manageExpenseLabel">Manage Expense Categories</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <ul class="list-group">
+          {% for cat in org_expense_categories %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              {{ cat }}
+              <form action="{{ url_for('delete_expense_category') }}" method="POST" class="ms-2">
+                <input type="hidden" name="category" value="{{ cat }}">
+                <button type="submit" class="btn btn-sm btn-danger" {% if user.role != 'Owner' %}disabled{% endif %}>
+                  Delete
+                </button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
 
 <body class="bg-light">
   <!-- Navbar -->
@@ -212,13 +312,21 @@
             <span id="selected-location" class="flex-grow-1 text-truncate">{{ user['locations'][0] }}</span>
             <i class="bi bi-chevron-down ms-1"></i>
         </a>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="max-width: 200px; overflow-x: auto;">
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-x: auto;">
             {% for location in user['locations'] %}
             <li><a class="dropdown-item location-dropdown-item" href="#">{{ location }}</a></li>
             {% endfor %}
         </ul>
         </div>
-      <p class="fw-bold text-decoration-none mx-2 ps-3" style="border-left: 2px solid black; color: rgb(3, 148, 3)"> {{ session['username'] }} </p>
+
+        <div class="dropdown pb-3">
+          <div class="d-flex align-items-center ps-3 mx-2 dropdown-toggle-custom-width" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="border-left: 2px solid black; color: rgb(3, 148, 3); cursor: pointer;">
+            <span class="fw-bold">{{ session['username'] }}</span>
+          </div>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="min-width: unset;">
+            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}">Logout</a></li>
+          </ul>
+        </div>
     </div>
   </nav>
 
@@ -235,68 +343,81 @@
 
   <!-- Tabs -->
   <div class="container">
-    <div class="tabs fw-semibold mt-2" style="overflow-x: auto; overflow-y: hidden; color: green;">
-    <ul class="nav nav-tabs flex-nowrap" id="myTab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="inputs-tab" data-bs-toggle="tab" data-bs-target="#inputs" type="button" role="tab">Inputs</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="debts-tab" data-bs-toggle="tab" data-bs-target="#debts" type="button" role="tab">Debts</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="figures-tab" data-bs-toggle="tab" data-bs-target="#figures" type="button" role="tab" style="white-space: nowrap;">Daily Figures</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">Summaries</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#people" type="button" role="tab">People</button>
-      </li>
-    </ul>
+  <div class="tabs fw-semibold mt-2">
+    <div class="d-flex justify-content-center">
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="inputs-tab" data-bs-toggle="tab" data-bs-target="#inputs" type="button" role="tab">Inputs</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="debts-tab" data-bs-toggle="tab" data-bs-target="#debts" type="button" role="tab">Debts</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="figures-tab" data-bs-toggle="tab" data-bs-target="#figures" type="button" role="tab" style="white-space: nowrap;">Daily Figures</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">Summaries</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#people" type="button" role="tab">People</button>
+        </li>
+      </ul>
     </div>
+  </div>
 
 <div class="tab-content mt-3" id="myTabContent">
-<!-- Inputs Tab -->
-<div class="tab-pane fade show active" id="inputs" role="tabpanel">
-    <div class="row g-4">
-      <!-- Record Sales -->
-      <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h5 class="card-title text-primary">📈 Record Sales</h5>
-            <p class="card-text text-muted">Log today's sales transactions and view recent history.</p>
-            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSaleCategoryModal">Add Sale Category</button>
-            {% for source in org_income_categories %}
-              <div class="mt-3">
-                <button class="btn btn-outline-success btn-sm w-100 text-start" data-bs-toggle="modal" data-bs-target="#incomeModal{{ loop.index }}">
-                  ➕ Add record for {{ source }}
-                </button>
-              </div>
-            {% endfor %}
+  <!-- Inputs Tab -->
+  <div class="tab-pane fade show active" id="inputs" role="tabpanel">
+    <div class="container">
+      <div class="row g-4 justify-content-center">
+        <!-- Record Sales -->
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title text-primary">📈 Record Sales</h5>
+              <p class="card-text text-muted">Log and keep track of today's sales transactions</p>
+              <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSaleCategoryModal">Add Sale Category</button>
+              <button class="btn btn-outline-secondary btn-sm ms-2" 
+                data-bs-toggle="modal" 
+                data-bs-target="#manageSalesCategoriesModal"
+                {% if user.role != 'Owner' %}disabled{% endif %}>🛠 Manage
+              </button>
+              {% for source in org_income_categories %}
+                <div class="mt-3">
+                  <button class="btn btn-outline-success btn-sm w-100 text-start" data-bs-toggle="modal" data-bs-target="#incomeModal{{ loop.index }}">
+                    ➕ Add record for {{ source }}
+                  </button>
+                </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Record Expenses -->
-      <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-          <div class="card-body">
-            <h5 class="card-title text-primary">💸 Record Expenses</h5>
-            <p class="card-text text-muted">Log and keep track of your business expenditures.</p>
-            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addExpenseCategoryModal">Add Expense Category</button>
-            {% for source in org_expense_categories %}
-              <div class="mt-3">
-                <button class="btn btn-outline-danger btn-sm w-100 text-start" data-bs-toggle="modal" data-bs-target="#expenseModal{{ loop.index }}">
-                  ➖ Add record for {{ source }}
-                </button>
-              </div>
-            {% endfor %}
+        <!-- Record Expenses -->
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title text-primary">💸 Record Expenses</h5>
+              <p class="card-text text-muted">Log and keep track of your business expenditures.</p>
+              <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addExpenseCategoryModal">Add Expense Category</button>
+              <button class="btn btn-outline-secondary btn-sm ms-2" 
+                data-bs-toggle="modal" 
+                data-bs-target="#manageExpenseCategoriesModal"
+                {% if user.role != 'Owner' %}disabled{% endif %}>🛠 Manage
+              </button>
+              {% for source in org_expense_categories %}
+                <div class="mt-3">
+                  <button class="btn btn-outline-danger btn-sm w-100 text-start" data-bs-toggle="modal" data-bs-target="#expenseModal{{ loop.index }}">
+                    ➖ Add record for {{ source }}
+                  </button>
+                </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
     </div>
-</div>
-  
+  </div>
 
 <!-- Debts Tab -->
 <div class="tab-pane fade" id="debts" role="tabpanel">
@@ -942,27 +1063,147 @@
 
 
   <!-- People Tab -->
-<div class="tab-pane fade" id="people" role="tabpanel">
-  <div class="px-2 mx-2">
-    <!-- Add Person Button -->
-    <div class="d-flex justify-content-start mb-2">
-      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#personModal" onclick="setupAddPerson()">Add a Person</button>
+  <div class="tab-pane fade" id="people" role="tabpanel">
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+
+          <!-- Add Person Button -->
+          <div class="d-flex justify-content-start mb-2">
+            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#personModal">Add Employee</button>
+          </div>
+
+          <!-- People List -->
+          <div class="my-4">
+            <ul class="list-group shadow-sm rounded overflow-hidden">
+              {% for emp in org_employees %}
+                <li class="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center py-3">
+                  <!-- Employee Info -->
+                  <div class="d-flex flex-column">
+                    <strong class="text-capitalize">{{ emp.user_name }}</strong>
+                    <small class="text-muted">{{ emp.role }}</small>
+                    {% if emp.role == 'Employee' %}
+                      <small class="text-muted">{{ emp.locations[0] }}</small>
+                    {% endif %}
+                  </div>
+
+                  <!-- Action Icons -->
+                  <div class="mt-2 mt-md-0 d-flex gap-3 align-items-center">
+                    {% if emp.role == 'Employee' %}
+                      <i class="bi bi-pencil-square text-primary" role="button" title="Edit"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editModal{{ emp.user_name | replace(' ', '') }}">
+                      </i>
+                      <i class="bi bi-trash text-danger" role="button" title="Delete"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteModal{{ emp.user_name | replace(' ', '') }}">
+                      </i>
+                      <i class="bi bi-shield-lock text-warning" role="button" title="Change Password"
+                        data-bs-toggle="modal"
+                        data-bs-target="#passwordModal{{ emp.user_name | replace(' ', '') }}">
+                      </i>
+                    {% endif %}
+                  </div>
+                </li>
+
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editModal{{ emp.user_name | replace(' ', '') }}" tabindex="-1" aria-labelledby="editModalLabel{{ emp.user_name | replace(' ', '') }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel{{ emp.user_name | replace(' ', '') }}">Edit Employee</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form method="POST" action="{{ url_for('edit_employee') }}">
+                        <div class="modal-body">
+                          <input type="hidden" name="emp_id" value="{{ emp._id }}">
+                          <input type="hidden" name="username" value="{{ emp.user_name }}">
+
+                          <div class="mb-3">
+                            <label for="editName{{ emp.user_name | replace(' ', '') }}" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName{{ emp.user_name | replace(' ', '') }}" name="name" value="{{ emp.user_name }}">
+                          </div>
+
+                          <div class="mb-3">
+                            <label for="editLocation{{ emp.user_name | replace(' ', '') }}" class="form-label">Location</label>
+                            <select class="form-select" name="location" required>
+                              {% for loc in org.locations %}
+                                <option value="{{ loc }}" {% if loc == emp.locations[0] %}selected{% endif %}>
+                                  {{ loc }}
+                                </option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteModal{{ emp.user_name | replace(' ', '') }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ emp.user_name | replace(' ', '') }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-3 shadow">
+                      <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="deleteModalLabel{{ emp.user_name | replace(' ', '') }}">Confirm Deletion</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="{{ url_for('delete_emp') }}" method="POST">
+                        <div class="modal-body">
+                          <p>Are you sure you want to delete <strong>{{ emp.user_name }}</strong>?</p>
+                          <input type="hidden" name="emp_id" value="{{ emp._id }}">
+                          <input type="hidden" name="emp_name" value="{{ emp.user_name }}">
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Password Change Modal -->
+                <div class="modal fade" id="passwordModal{{ emp.user_name | replace(' ', '') }}" tabindex="-1" aria-labelledby="passwordModalLabel{{ emp.user_name | replace(' ', '') }}" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <form method="POST" action="{{ url_for('update_password') }}">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="passwordModalLabel{{ emp.user_name | replace(' ', '') }}">Change Password for {{ emp.user_name }}</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <input type="hidden" name="user_id" value="{{ emp._id }}">
+                          <div class="mb-3">
+                            <label for="newPassword{{ emp.user_name | replace(' ', '') }}" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="newPassword{{ emp.user_name | replace(' ', '') }}" name="new_password" required>
+                          </div>
+                          <div class="mb-3">
+                            <label for="confirmPassword{{ emp.user_name | replace(' ', '') }}" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword{{ emp.user_name | replace(' ', '') }}" name="confirm_password" required>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <button type="submit" class="btn btn-warning">Update Password</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </ul>
+          </div>
+
+        </div>
+      </div>
     </div>
-
-    <!-- People List -->
-    <ul class="list-group my-3">
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>Mark</span>
-        <span>
-          <i class="bi bi-pencil-square me-3" role="button" data-bs-toggle="modal" data-bs-target="#personModal" onclick="setupEditPerson('Mark')"></i>
-          <i class="bi bi-trash" role="button" onclick="deletePerson('Mark')"></i>
-        </span>
-      </li>
-    </ul>
   </div>
-</div>
 
-  
 <!-- Income Modal -->
 <div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 500px;">
@@ -1237,49 +1478,8 @@
   </div>
 </div>
 
-<!-- Add Person Modal -->
-  <div class="modal fade" id="personModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 320px; margin: auto;">
-      <div class="modal-content" style="border-radius: 8px;">
-        <div class="modal-header py-2">
-          <h6 class="modal-title" id="personModalLabel">Add a Person</h6>
-          <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-  
-        <div class="modal-body p-3">
-          <!-- Username (shown only when adding) -->
-          <div class="mb-2" id="usernameField">
-            <label class="form-label mb-1">User Name</label>
-            <input type="text" class="form-control form-control-sm" id="userName">
-          </div>
-  
-          <!-- Pin -->
-          <div class="mb-2">
-            <label class="form-label mb-1">User Pin</label>
-            <input type="password" class="form-control form-control-sm" id="userPin">
-          </div>
-  
-          <!-- Shops -->
-          <div class="mb-3">
-            <label class="form-label mb-1">Shops</label>
-            <select class="form-select form-select-sm" id="userShops" multiple>
-              <option>Kiyembe</option>
-              <option>Nasser</option>
-            </select>
-          </div>
-  
-          <!-- Buttons -->
-          <div class="d-flex justify-content-end mt-3 pt-3">
-            <button class="btn btn-outline-secondary btn-sm me-3" data-bs-dismiss="modal">Cancel</button>
-            <button class="btn btn-primary btn-sm ms-3">Save</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
 <!-- Pending Incomes Detail Modal -->
-
 <div class="modal fade" id="pendingIncomeDetailModal1" tabindex="-1" aria-labelledby="pendingIncomeDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content border-primary">
@@ -1338,7 +1538,6 @@
 </div>
 
 <!-- Incomes Detail Modal -->
-
 <div class="modal fade" id="incomeDetailModal1" tabindex="-1" aria-labelledby="incomeDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content border-primary">
@@ -1399,7 +1598,6 @@
     </div>
   </div>
 </div>
-
 
 <!-- Expenses Detail Modal -->
 <div class="modal fade" id="expensesDetailModal1" tabindex="-1" aria-labelledby="expenseDetailModal1Label" aria-hidden="true" style="overflow-x: auto;">
