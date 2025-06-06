@@ -168,12 +168,22 @@ def home():
     org_employees = db.Users.find({"organization": user["organization"]})
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
+    org_sales = db.Sales.find({"organization_id": user["organization"]})
+    org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt"})
+    org_expenses = db.Expenses.find({"organization_id": user["organization"]})
+    org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
+
     return render_template("home_2.html",
                             user = user,
                             org = org,
                             org_employees = org_employees,
                             org_income_categories = org_income_categories, 
-                            org_expense_categories = org_expense_categories)
+                            org_expense_categories = org_expense_categories,
+                            org_sales = org_sales,
+                            org_pending_sales = org_pending_sales,
+                            org_expenses = org_expenses,
+                            org_pending_expenses = org_pending_expenses)
+
 
 @app.route("/add_income_category", methods=["POST"])
 def add_income_category():
@@ -229,12 +239,14 @@ def add_sale():
         user = db.Users.find_one({"user_name": session.get("username")})
         db.Sales.insert_one({
             "logger_id": user["_id"],
+            "logger_name": user["user_name"],
             "organization_id": user["organization"],
             "income_source": form_data["income_source"],
-            "amount": form_data["amount"],
+            "amount": int(form_data["amount"]),
+            "amount_left": int(form_data["amount"]) if form_data["type"] == "debt" else 0,
             "type": form_data["type"],
             "client_name": form_data["client_name"],
-            "date": datetime.datetime.today(),
+            "date": datetime.datetime.today().strftime("%B %d, %Y"),
             "comments": form_data["comments"],
             "payment_history": []
         })
@@ -252,17 +264,49 @@ def add_expense():
 
         db.Expenses.insert_one({
             "logger_id": user["_id"],
+            "logger_name": user["user_name"],
             "organization_id": user["organization"],
             "expense_source": form_data["expense_source"],
-            "amount": form_data["amount"],
+            "amount": int(form_data["amount"]),
+            "amount_left": int(form_data["amount"]) if form_data["type"] == "debt" else 0,
             "type": form_data["type"],
             "service_provider": form_data["recipient"],
             "source_of_funds": form_data["payment_method"],
-            "date": datetime.datetime.today(),
+            "date": datetime.datetime.today().strftime("%B %d, %Y"),
             "comments": form_data["comments"],
             "payment_history": []
         })
         flash("Your expense has been recorded successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        redirect(url_for("home"))
+
+
+@app.route("/clear_income_debt", methods=["POST"])
+def clear_income_debt():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
+
+        db.Sales.update_one({"_id": ObjectId(form_data["sale_id"])}, {"$push": {"payment_history": {
+            "date": datetime.datetime.today().strftime("%B %d, %Y"),
+            "logger_name": user["user_name"],
+            "amount": int(form_data["amount"])
+            }}})
+        
+        sale_info = db.Sales.find_one({"_id": ObjectId(form_data["sale_id"])})
+
+        amount_paid = 0
+        for k in sale_info["payment_history"]:
+            amount_paid = amount_paid + int(k["amount"])
+
+        amount_left = int(sale_info["amount"]) - amount_paid
+        db.Sales.update_one({"_id": ObjectId(form_data["sale_id"])}, {"$set": {"amount_left": amount_left}})
+
+        if amount_left <= 0:
+            db.Sales.update_one({"_id": ObjectId(form_data["sale_id"])}, {"$set": {"type": "cash"}})
+        
+        flash("Payment has been recorded successfully!", "success")
         return redirect(url_for("home"))
     else:
         redirect(url_for("home"))
