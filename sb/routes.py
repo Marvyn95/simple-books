@@ -168,9 +168,9 @@ def home():
     org_employees = db.Users.find({"organization": user["organization"]})
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
-    org_sales = db.Sales.find({"organization_id": user["organization"]})
+    org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash"})
     org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt"})
-    org_expenses = db.Expenses.find({"organization_id": user["organization"]})
+    org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash"})
     org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
 
     return render_template("home_2.html",
@@ -305,6 +305,36 @@ def clear_income_debt():
 
         if amount_left <= 0:
             db.Sales.update_one({"_id": ObjectId(form_data["sale_id"])}, {"$set": {"type": "cash"}})
+        
+        flash("Payment has been recorded successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        redirect(url_for("home"))
+
+
+@app.route("/clear_expense_debt", methods=["POST"])
+def clear_expense_debt():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
+
+        db.Expenses.update_one({"_id": ObjectId(form_data["expense_id"])}, {"$push": {"payment_history": {
+            "date": datetime.datetime.today().strftime("%B %d, %Y"),
+            "logger_name": user["user_name"],
+            "amount": int(form_data["amount"])
+            }}})
+        
+        expense_info = db.Expenses.find_one({"_id": ObjectId(form_data["expense_id"])})
+
+        amount_paid = 0
+        for k in expense_info["payment_history"]:
+            amount_paid = amount_paid + int(k["amount"])
+
+        amount_left = int(expense_info["amount"]) - amount_paid
+        db.Expenses.update_one({"_id": ObjectId(form_data["expense_id"])}, {"$set": {"amount_left": amount_left}})
+
+        if amount_left <= 0:
+            db.Expenses.update_one({"_id": ObjectId(form_data["expense_id"])}, {"$set": {"type": "cash"}})
         
         flash("Payment has been recorded successfully!", "success")
         return redirect(url_for("home"))

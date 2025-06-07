@@ -527,7 +527,10 @@
             <!-- Top Row: Source and Amount -->
             <div class="d-flex justify-content-between align-items-center mb-2">
               <div class="text-muted small text-primary fs-5"><strong>{{ sale.income_source }}</strong></div>
-              <div class="text-primary fw-bold fs-5">{{ sale.amount }}/=</div>
+              <div class="text-primary fw-bold">
+                {{ "{:,.0f}".format(sale.amount) }}/=
+                <small class="text-muted fw-normal">({{ "{:,.0f}".format(sale.amount_left) }}/= left)</small>
+              </div>
             </div>
             <!-- Divider -->
             <hr class="my-2 border-primary opacity-25">
@@ -611,7 +614,7 @@
                     <input type="number" min="0" step="100" name="amount" required class="form-control form-control-sm" id="pendingIncomeAmount{{ loop.index }}" placeholder="Enter amount">
                   </div>
 
-                  <div class="mb-3">
+                  <!-- <div class="mb-3">
                     <label class="form-label fw-semibold small text-muted">Destination of Funds</label>
                     <div class="d-flex flex-wrap gap-2">
                       <div class="form-check form-check-inline">
@@ -627,7 +630,7 @@
                         <label class="form-check-label small" for="pendingIncomeRadio3{{ loop.index }}">Mobile Money</label>
                       </div>
                     </div>
-                  </div>
+                  </div> -->
                 </div>
 
                 <div class="modal-footer border-top-0 px-4 pt-1 pb-3">
@@ -645,401 +648,405 @@
 
     <!-- Pending Expenses Tab -->
     <div class="tab-pane fade" id="pending-expenses" role="tabpanel">
-      <!-- Expense Entry Card -->
-      <div class="card border-danger mb-3 shadow-sm">
-        <div class="card-body py-3 px-4">
-          <!-- Top Row -->
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="text-muted small text-danger"><strong>Fabric Purchase</strong></div>
-            <div class="text-danger fw-bold fs-5">420,000/=</div>
-          </div>
-
-          <!-- Divider -->
-          <hr class="my-2 border-danger opacity-25">
-
-          <!-- Info Section -->
-          <div class="row small text-muted mb-2">
-            <div class="col-md-4 col-sm-12 mb-1"><strong>Date:</strong> 28/02/2025</div>
-            <div class="col-md-4 col-sm-12 mb-1"><strong>Requested By:</strong> Sharon</div>
-            <div class="col-md-4 col-sm-12"><strong>Vendor:</strong> Gulu Textiles</div>
-          </div>
-
-          <!-- Action Row with Comment -->
-          <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-3">
-            <div class="text-muted small fst-italic">
-              <i class="bi bi-chat-left-text me-1"></i>Pending payment after stock delivery confirmation.
+      {% for expense in org_pending_expenses %}
+        <!-- Expense Entry Card -->
+        <div class="card border-danger mb-3 shadow-sm">
+          <div class="card-body py-3 px-4">
+            <!-- Top Row: Expense Type and Amount -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="text-muted small text-danger fs-5"><strong>{{ expense.expense_source }}</strong></div>
+              <div class="text-danger fw-bold">
+                {{ "{:,.0f}".format(expense.amount) }}/=
+                <small class="text-muted fw-normal">({{ "{:,.0f}".format(expense.amount_left) }}/= left)</small>
+              </div>
             </div>
-            <div>
-              <button class="btn btn-sm btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#pendingExpenseDetailModal1">Payment history</button>
-              <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#pendingExpenseModal">Clear</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Expense Payment History Modal -->
-    <div class="modal fade" id="pendingExpenseDetailModal1" tabindex="-1" aria-labelledby="pendingExpenseDetailModal1Label" aria-hidden="true">
-      <div class="modal-dialog modal-md modal-dialog-scrollable">
-        <div class="modal-content shadow-sm border-0">
-          <div class="modal-header bg-danger text-white">
-            <h6 class="modal-title mb-0" id="pendingExpenseDetailModal1Label">Payment History</h6>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body px-4 py-3">
-            <div class="table-responsive">
-              <table class="table table-sm table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr class="small text-muted">
-                    <th>Amount (UGX)</th>
-                    <th>Date</th>
-                    <th>Recorded By</th>
-                  </tr>
-                </thead>
-                <tbody class="small">
-                  <tr>
-                    <td class="fw-semibold text-danger">200,000</td>
-                    <td>Feb 28, 2025</td>
-                    <td>Sharon</td>
-                  </tr>
-                  <tr>
-                    <td class="fw-semibold text-danger">120,000</td>
-                    <td>Mar 1, 2025</td>
-                    <td>Brian</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="modal-footer py-2 px-4 border-top-0">
-            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">Back</button>
-          </div>
-        </div>
-      </div>
-    </div>
+            <!-- Divider -->
+            <hr class="my-2 border-danger opacity-25">
 
-    <!-- Clear Expense Debt Modal -->
-    <div class="modal fade" id="pendingExpenseModal" tabindex="-1" aria-labelledby="pendingExpenseModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
-        <div class="modal-content border-0 shadow-sm rounded-3">
-          <div class="modal-header border-bottom-0 pb-2 pt-3 px-4">
-            <h6 class="modal-title text-danger fw-semibold" id="pendingExpenseModalLabel">Clear Expense Debt</h6>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body px-4 pt-0 pb-3">
-            <div class="mb-3">
-              <label for="pendingExpenseAmount" class="form-label fw-semibold small text-muted">
-                Amount to Clear <span class="text-danger">(420,000/= Left)</span>
-              </label>
-              <input type="text" class="form-control form-control-sm" id="pendingExpenseAmount" placeholder="Enter amount">
+            <!-- Info Section -->
+            <div class="row small text-muted mb-2">
+              <div class="col-md-4 col-sm-12 mb-1"><strong>Date:</strong> {{ expense.date }}</div>
+              <div class="col-md-4 col-sm-12 mb-1"><strong>Filed By:</strong> {{ expense.logger_name }}</div>
+              <div class="col-md-4 col-sm-12"><strong>Recipient:</strong> {{ expense.service_provider }}</div>
             </div>
-            <div class="mb-3">
-              <label class="form-label fw-semibold small text-muted">Source of Funds</label>
-              <div class="d-flex flex-wrap gap-2">
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="expenseSource" id="expenseRadio1" value="Cash" checked>
-                  <label class="form-check-label small" for="expenseRadio1">Cash Register</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="expenseSource" id="expenseRadio2" value="Bank">
-                  <label class="form-check-label small" for="expenseRadio2">Bank Account</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="expenseSource" id="expenseRadio3" value="MM">
-                  <label class="form-check-label small" for="expenseRadio3">Mobile Money</label>
-                </div>
+
+            <!-- Action Row with Comment -->
+            <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-3">
+              <div class="text-muted small fst-italic">
+                <i class="bi bi-chat-left-text me-1"></i> {{ expense.comments }}
+              </div>
+              <div>
+                <button class="btn btn-sm btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#pendingExpenseDetailModal{{ loop.index }}">
+                  Payment history
+                </button>
+                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#pendingExpenseModal{{ loop.index }}">
+                  Clear
+                </button>
               </div>
             </div>
           </div>
-          <div class="modal-footer border-top-0 px-4 pt-1 pb-3">
-            <button class="btn btn-sm btn-light me-2" data-bs-dismiss="modal">Cancel</button>
-            <button class="btn btn-sm btn-danger">Save</button>
+        </div>
+
+        <!-- Expense Payment History Modal -->
+        <div class="modal fade" id="pendingExpenseDetailModal{{ loop.index }}" tabindex="-1" aria-labelledby="pendingExpenseDetailModalLabel{{ loop.index }}" aria-hidden="true">
+          <div class="modal-dialog modal-md modal-dialog-scrollable">
+            <div class="modal-content shadow-sm border-0">
+              <div class="modal-header bg-danger text-white">
+                <h6 class="modal-title mb-0" id="pendingExpenseDetailModalLabel{{ loop.index }}">Payment History</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body px-4 py-3">
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr class="small text-muted">
+                        <th>Amount (UGX)</th>
+                        <th>Date</th>
+                        <th>Recorded By</th>
+                      </tr>
+                    </thead>
+                    <tbody class="small">
+                      {% for payment in expense.payment_history %}
+                      <tr>
+                        <td class="fw-semibold text-danger">{{ payment.amount }}</td>
+                        <td>{{ payment.date }}</td>
+                        <td>{{ payment.logger_name }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer py-2 px-4 border-top-0">
+                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="modal">Back</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clear Expense Debt Modal -->
+        <div class="modal fade" id="pendingExpenseModal{{ loop.index }}" tabindex="-1" aria-labelledby="pendingExpenseModalLabel{{ loop.index }}" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content border-0 shadow-sm rounded-3">
+
+              <form method="POST" action="{{ url_for('clear_expense_debt') }}">
+                <input type="hidden" name="expense_id" value="{{ expense._id }}">                
+                <div class="modal-header border-bottom-0 pb-2 pt-3 px-4">
+                  <h6 class="modal-title text-danger fw-semibold" id="pendingExpenseModalLabel{{ loop.index }}">Clear Expense Debt</h6>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4 pt-0 pb-3">
+                  <div class="mb-3">
+                    <label for="pendingExpenseAmount{{ loop.index }}" class="form-label fw-semibold small text-muted">
+                      Amount to Clear <span class="text-danger">({{ expense.amount_left }}/= Left)</span>
+                    </label>
+                    <input type="number" min="0" step="100" name="amount" required class="form-control form-control-sm" id="pendingExpenseAmount{{ loop.index }}" placeholder="Enter amount">
+                  </div>
+                </div>
+
+                <!-- <div class="mb-3">
+                  <label class="form-label fw-semibold small text-muted">Source of Funds</label>
+                  <div class="d-flex flex-wrap gap-2">
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="source{{ loop.index }}" id="pendingExpenseRadio1{{ loop.index }}" value="Cash" checked>
+                      <label class="form-check-label small" for="pendingExpenseRadio1{{ loop.index }}">Cash Register</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="source{{ loop.index }}" id="pendingExpenseRadio2{{ loop.index }}" value="Bank">
+                      <label class="form-check-label small" for="pendingExpenseRadio2{{ loop.index }}">Bank Account</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="source{{ loop.index }}" id="pendingExpenseRadio3{{ loop.index }}" value="MM">
+                      <label class="form-check-label small" for="pendingExpenseRadio3{{ loop.index }}">Mobile Money</label>
+                    </div>
+                  </div>
+                </div> -->
+
+                <div class="modal-footer border-top-0 px-4 pt-1 pb-3">
+                  <button type="button" class="btn btn-sm btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-sm btn-danger">Save</button>
+                </div>
+              </form>
+              
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+
+
+
+<!-- Daily Figures Tab -->
+<div class="tab-pane fade" id="figures" role="tabpanel">
+  <div class="px-2">
+
+    <!-- Tabs: Incomes and Expenses (Bootstrap Pills) -->
+    <ul class="nav nav-underline small fw-bold d-flex justify-content-center mb-2" role="tablist">
+      <li class="nav-item mx-2" role="presentation">
+        <button
+          class="nav-link active text-primary"
+          id="daily-incomes-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#daily-incomes"
+          type="button"
+          role="tab"
+          aria-controls="daily-incomes"
+          aria-selected="true">
+          Incomes
+        </button>
+      </li>
+      <li class="nav-item mx-2" role="presentation">
+        <button
+          class="nav-link text-danger"
+          id="daily-expenses-tab"
+          data-bs-toggle="pill"
+          data-bs-target="#daily-expenses"
+          type="button"
+          role="tab"
+          aria-controls="daily-expenses"
+          aria-selected="false">
+          Expenses
+        </button>
+      </li>
+    </ul>
+
+    <!-- Filter & Sort Panel -->
+    <div class="d-flex justify-content-center mb-2">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+        <div class="dropdown">
+          <button class="btn btn-outline-dark w-100 fw-bold dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Filter & Sort
+          </button>
+          <div class="dropdown-menu p-3 shadow w-100">
+            <div class="mb-2">
+              <label class="form-label small mb-0">Source</label>
+              <select class="form-select form-select-sm">
+                <option>All</option>
+                <option>Customer</option>
+                <option>Supplier</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-0">Amount</label>
+              <input type="number" class="form-control form-control-sm">
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-0">Account</label>
+              <select class="form-select form-select-sm">
+                <option>All</option>
+                <option>Cash</option>
+                <option>Mobile Money</option>
+                <option>Bank</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-0">Person</label>
+              <select class="form-select form-select-sm">
+                <option>All</option>
+                <option>Mark</option>
+                <option>Other</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-  </div>
-</div>
+    <!-- Tab Content: Incomes & Expenses -->
+    <div class="tab-content">
 
+      <!-- Incomes Section -->
+  <div class="tab-pane fade show active" id="daily-incomes" role="tabpanel" aria-labelledby="daily-incomes-tab">
+    <div class="row px-2 mt-2" style="max-height: 65vh; overflow-y: auto;">
 
-  </div>
-</div>
+      {% for sale in org_sales %}
+      <div class="d-flex justify-content-center mb-3">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+          <div class="bg-white rounded shadow-sm border border-primary p-3">
 
+            <!-- Line 1: Income Source & Amount -->
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-semibold text-dark">{{ sale.income_source }}</span>
+              <span class="fw-bold fs-6 text-success">{{ "{:,}".format(sale.amount) }}/=</span>
+            </div>
 
-<!-- Daily figures Tab -->
-<div class="tab-pane fade" id="figures" role="tabpanel">
-  <div class="px-2">
+            <hr class="my-2 border-primary">
 
-    <!-- Pending Indicators -->
-    <div class="d-flex justify-content-around px-1 mb-2 small fw-bold">
-      <span id="dailyIncomes" class="text-primary activeDaily" style="cursor: pointer;" onclick="toggleDailyClass(this)">Incomes</span>
-      <span id="dailyExpenses" class="text-danger" style="cursor: pointer;" onclick="toggleDailyClass(this)">Expenses</span>
-    </div>
+            <!-- Line 2: Date, Seller, Client -->
+            <div class="d-flex justify-content-between text-muted small mb-2">
+              <span><strong>Date:</strong> {{ sale.date }}</span>
+              <span><strong>Sales Person:</strong> {{ sale.logger_name }}</span>
+              <span><strong>Client:</strong> {{ sale.client_name }}</span>
+            </div>
 
-    <!-- Filter & Sort Dropdown -->
-    <div class="dropdown mb-2">
-      <button class="btn btn-outline-dark fw-bold w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Filter & Sort
-      </button>
-      <div class="dropdown-menu p-3 shadow" style="width: 100%;">
-        <div class="mb-2">
-          <label class="form-label mb-0 small">Source</label>
-          <select class="form-select form-select-sm">
-            <option>All</option>
-            <option>Customer</option>
-            <option>Supplier</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label class="form-label mb-0 small">Amount</label>
-          <input type="number" class="form-control form-control-sm">
-        </div>
-        <div class="mb-2">
-          <label class="form-label mb-0 small">Account</label>
-          <select class="form-select form-select-sm">
-            <option>All</option>
-            <option>Cash</option>
-            <option>Mobile Money</option>
-            <option>Bank</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label class="form-label mb-0 small">Person</label>
-          <select class="form-select form-select-sm">
-            <option>All</option>
-            <option>Mark</option>
-            <option>Other</option>
-          </select>
+            <!-- Line 3: Comment + Edit Button -->
+            <div class="d-flex justify-content-between align-items-center small text-muted">
+              <div>
+                <i class="bi bi-chat-text me-1"></i>
+                <span class="fst-italic">{{ sale.comments }}</span>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editIncomeModal{{ sale._id }}">
+                Edit
+              </button>
+            </div>
+
+          </div>
         </div>
       </div>
-    </div>
 
+      <!-- Modal for Editing Income (Form Inside) -->
+      <div class="modal fade" id="editIncomeModal{{ sale._id }}" tabindex="-1" aria-labelledby="editIncomeModal{{ sale._id }}Label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-primary">
+            <form method="post" action="">
+              <div class="modal-header bg-primary text-white">
+                <h6 class="modal-title" id="editIncomeModal{{ sale._id }}Label">Edit Income Entry</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="sale_id" value="{{ sale._id }}">
 
- <!-- Daily Incomes --> 
- <div id="dailyIncomesValues" class="row mt-2 px-2 activeDailyValues" style="max-height: 65vh; overflow-y: auto;">
-  <!-- Debt Cards -->
-  <h3 class="mt-3">01/03/2025</h3>
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Blaise</span>
-      <span>450,000/=</span>
-    </div>
-    <hr class="my-1 border-primary">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Source: <span>Embroidery</span></span>
-        <span>Person: <span>Mark</span></span>
+                <div class="mb-2">
+                  <label class="form-label small">Income Source</label>
+                  <select class="form-select form-select-sm" name="source">
+                    {% for category in org.income_categories %}
+                      <option value="{{ category.category_name }}" {% if sale.income_source == category.category_name %}selected{% endif %}>
+                        {{ category.category_name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                
+                <div class="mb-2">
+                  <label class="form-label small">Amount</label>
+                  <input type="number" class="form-control form-control-sm" name="amount" value="{{ sale.amount }}">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Client</label>
+                  <input type="text" class="form-control form-control-sm" name="client" value="{{ sale.client_name }}">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Comments</label>
+                  <textarea class="form-control form-control-sm" name="comments" rows="2">{{ sale.comments }}</textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-primary btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#incomeDetailModal1" style="color: black;">Details</button>
+
+      {% endfor %}
+
     </div>
   </div>
 
-  <!-- Another Debt Card -->
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Joy P/S</span>
-      <span>700,000/=</span>
-    </div>
-    <hr class="my-1 border-primary">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Source: <span>Shirt Print</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
-    </div>
-  </div>
+<!-- Expenses Section -->
+<div class="tab-pane fade" id="daily-expenses" role="tabpanel" aria-labelledby="daily-expenses-tab">
+  <div class="row px-2 mt-2" style="max-height: 65vh; overflow-y: auto;">
 
-  <!-- Another Debt Card -->
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Shop 6</span>
-      <span>50,000/=</span>
-    </div>
-    <hr class="my-1 border-primary">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Source: <span>Repairs</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
-    </div>
-  </div>
-  <h3 class="mt-3">02/03/2025</h3>
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Blaise</span>
-      <span>450,000/=</span>
-    </div>
-    <hr class="my-1 border-primary">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Source: <span>Embroidery</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
-    </div>
-  </div>
+    {% for expense in org_expenses %}
+    <div class="d-flex justify-content-center mb-3">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+        <div class="bg-white rounded shadow-sm border border-danger p-3">
 
-  <!-- Another Debt Card -->
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Joy P/S</span>
-      <span>700,000/=</span>
-    </div>
-    <hr class="my-1 border-primary">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Source: <span>Shirt Print</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
-    </div>
-  </div>
+          <!-- Line 1: Expense Category & Amount -->
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-semibold text-dark">{{ expense.expense_source }}</span>
+            <span class="fw-bold fs-6 text-danger">{{ "{:,}".format(expense.amount) }}/=</span>
+          </div>
 
-  <!-- Another Debt Card -->
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-primary">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Shop 6</span>
-      <span>50,000/=</span>
-    </div>
-    <hr class="my-1 border-primary">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Source: <span>Repairs</span></span>
-        <span>Person: <span>Mark</span></span>
+          <hr class="my-2 border-danger">
+
+          <!-- Line 2: Date, Logger, Payee -->
+          <div class="d-flex justify-content-between text-muted small mb-2">
+            <span><strong>Date:</strong> {{ expense.date }}</span>
+            <span><strong>Logged By:</strong> {{ expense.logger_name }}</span>
+            <span><strong>Paid to:</strong> {{ expense.service_provider }}</span>
+          </div>
+
+          <!-- Line 3: Comment + Edit Button -->
+          <div class="d-flex justify-content-between align-items-center small text-muted">
+            <div>
+              <i class="bi bi-chat-text me-1"></i>
+              <span class="fst-italic">{{ expense.comments }}</span>
+            </div>
+            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#editExpenseModal{{ expense._id }}">
+              Edit
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-primary btn-sm mx-3" style="color: black;">Details</button>
+
+    <!-- Modal for Editing Expense (Form Inside) -->
+    <div class="modal fade" id="editExpenseModal{{ expense._id }}" tabindex="-1" aria-labelledby="editExpenseModal{{ expense._id }}Label" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+          <form method="post" action="/update-expense/{{ expense._id }}">
+            <div class="modal-header bg-danger text-white">
+              <h6 class="modal-title" id="editExpenseModal{{ expense._id }}Label">Edit Expense Entry</h6>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="expense_id" value="{{ expense._id }}">
+
+              <div class="mb-2">
+                <label class="form-label small">Expense Category</label>
+                <select class="form-select form-select-sm" name="category">
+                  {% for category in org.expense_categories %}
+                    <option value="{{ category.category_name }}" {% if expense.expense_category == category.category_name %}selected{% endif %}>
+                      {{ category.category_name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-2">
+                <label class="form-label small">Amount</label>
+                <input type="number" class="form-control form-control-sm" name="amount" value="{{ expense.amount }}">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Paid to:</label>
+                <input type="text" class="form-control form-control-sm" name="payee" value="{{ expense.service_provider }}">
+              </div>
+              <div class="mb-2">
+                <label class="form-label small">Comments</label>
+                <textarea class="form-control form-control-sm" name="comments" rows="2">{{ expense.comments }}</textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-danger btn-sm">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-  </div>  
+
+    {% endfor %}
+
+  </div>
 </div>
 
 
- <!-- Daily Expenses --> 
- <div id="dailyExpensesValues" class="row mt-2 px-2 inActiveDailyValues" style="max-height: 65vh; overflow-y: auto;">
-  <!-- Debt Cards -->
-   <h3 class="mt-3">01/03/2025</h3>
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Food</span>
-      <span>50,000/=</span>
-    </div>
-    <hr class="my-1 border-danger">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Account: <span>Mobile Money</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-danger btn-sm mx-3" data-bs-toggle="modal" data-bs-target="#expensesDetailModal1" style="color: black;">Details</button>
     </div>
   </div>
-
-  <!-- Another Debt Card -->
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Transport</span>
-      <span>57,000/=</span>
-    </div>
-    <hr class="my-1 border-danger">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Account: <span>Register</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
-    </div>
-  </div>
-
-  <!-- Another Debt Card -->
-  <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
-    <div class="d-flex justify-content-between fw-bold">
-      <span>Rent</span>
-      <span>500,000/=</span>
-    </div>
-    <hr class="my-1 border-danger">
-    <div class="small">
-      <div class="d-flex justify-content-between">
-        <span>Account: <span>Bank</span></span>
-        <span>Person: <span>Mark</span></span>
-      </div>
-    </div>
-    <div class="d-flex justify-content-end mt-2">
-      <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
-    </div>
-  </div>
-  <h3 class="mt-3">02/03/2025</h3>
- <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
-   <div class="d-flex justify-content-between fw-bold">
-     <span>Food</span>
-     <span>50,000/=</span>
-   </div>
-   <hr class="my-1 border-danger">
-   <div class="small">
-     <div class="d-flex justify-content-between">
-       <span>Account: <span>Mobile Money</span></span>
-       <span>Person: <span>Mark</span></span>
-     </div>
-   </div>
-   <div class="d-flex justify-content-end mt-2">
-     <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
-   </div>
- </div>
-
- <!-- Another Debt Card -->
- <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
-   <div class="d-flex justify-content-between fw-bold">
-     <span>Transport</span>
-     <span>77,000/=</span>
-   </div>
-   <hr class="my-1 border-danger">
-   <div class="small">
-     <div class="d-flex justify-content-between">
-       <span>Account: <span>Register</span></span>
-       <span>Person: <span>Mark</span></span>
-     </div>
-   </div>
-   <div class="d-flex justify-content-end mt-2">
-     <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
-   </div>
- </div>
-
- <!-- Another Debt Card -->
- <div class="bg-white p-3 rounded shadow-sm mb-2 border border-danger">
-   <div class="d-flex justify-content-between fw-bold">
-     <span>Water</span>
-     <span>20,000/=</span>
-   </div>
-   <hr class="my-1 border-danger">
-   <div class="small">
-     <div class="d-flex justify-content-between">
-       <span>Account: <span>Register</span></span>
-       <span>Person: <span>Mark</span></span>
-     </div>
-   </div>
-   <div class="d-flex justify-content-end mt-2">
-     <button class="btn btn-outline-danger btn-sm mx-3" style="color: black;">Details</button>
-   </div>
- </div>
 </div>
-</div>
-</div>
+
+
+
+
 
       <!-- Summaries Tab -->
       <div class="tab-pane fade" id="summary" role="tabpanel">
