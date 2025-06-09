@@ -173,7 +173,7 @@ def home():
     org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash"})
     org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
 
-    return render_template("home_2.html",
+    return render_template("home.html",
                             user = user,
                             org = org,
                             org_employees = org_employees,
