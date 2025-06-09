@@ -340,3 +340,37 @@ def clear_expense_debt():
         return redirect(url_for("home"))
     else:
         redirect(url_for("home"))
+
+
+@app.route("/update_sale", methods=["POST"])
+def update_sale():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
+        db.Sales.update_one({"_id": ObjectId(form_data["sale_id"])}, {"$set": {
+            "income_source": form_data["source"],
+            "amount": int(form_data["amount"]),
+            "client_name": form_data["client"],
+            "comments": form_data["comments"]
+        }})
+        flash("Your sale has been updated successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        redirect(url_for("home"))
+
+
+@app.route("/update_expense", methods=["POST"])
+def update_expense():
+    if request.method == "POST":
+        form_data = request.form
+        user = db.Users.find_one({"user_name": session.get("username")})
+        db.Expenses.update_one({"_id": ObjectId(form_data["expense_id"])}, {"$set": {
+            "expense_source": form_data["category"],
+            "amount": int(form_data["amount"]),
+            "service_provider": form_data["payee"],
+            "comments": form_data["comments"]
+        }})
+        flash("Your expense has been updated successfully!", "success")
+        return redirect(url_for("home"))
+    else:
+        redirect(url_for("home"))
