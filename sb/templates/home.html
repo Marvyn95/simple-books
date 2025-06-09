@@ -777,189 +777,126 @@
 
 <!-- Summaries Tab -->
 <div class="tab-pane fade" id="summary" role="tabpanel">
-  <div class="d-flex flex-column min-vh-100">
+  <div class="d-flex flex-column p-3">
 
-    <!-- Date Range Selection -->
-    <div class="bg-light rounded border p-3 mb-3 container">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h6 class="text-secondary mb-1">Selected Period</h6>
-          <h5 class="text-primary fw-bold" id="dateRangeDisplay">20/04/2025 <span class="text-dark">to</span> 30/06/2025</h5>
-        </div>
-        <button class="btn btn-outline-secondary btn-sm" onclick="toggleDatePicker()">
-          <i class="bi bi-calendar-event"></i>
-        </button>
-      </div>
-      <div id="datePicker" class="mt-3 border rounded p-3 bg-white shadow-sm" style="display: none;">
-        <div class="row g-2">
-          <div class="col-sm-6">
-            <label class="form-label small">Start Date</label>
-            <input type="date" id="startDate" class="form-control form-control-sm">
-          </div>
-          <div class="col-sm-6">
-            <label class="form-label small">End Date</label>
-            <input type="date" id="endDate" class="form-control form-control-sm">
-          </div>
-        </div>
-      </div>
-    </div>
+        <!-- Cards Container -->
+    <div class="container mb-4 flex-grow-1" style="max-width: 960px;">
+      <div class="row g-3 justify-content-center">
 
-    <!-- Summary Cards Container -->
-    <div class="container mb-4 flex-grow-1">
-      <div class="row g-3">
+        <!-- Financial Summary -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100 border-primary" style="padding: 0.6rem;">
+            <div class="card-body p-2">
+              <h5 class="card-title mb-2 text-primary fs-6">Financial Summary</h5>
+              <dl class="row mb-0" style="font-size: 0.75rem;">
+                <dt class="col-6 text-truncate text-black-50">Total Income</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">23,900,000/=</dd>
 
-        <!-- Income / Expenses / Profit -->
-        <div class="col-md-4">
-          <div class="card border-start border-success shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Total Income</h6>
-              <h5 class="fw-bold text-success">23,900,000/=</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card border-start border-danger shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Total Expenses</h6>
-              <h5 class="fw-bold text-danger">12,050,000/=</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card border-start border-primary shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Net Profit</h6>
-              <h5 class="fw-bold text-primary">11,850,000/=</h5>
+                <dt class="col-6 text-truncate text-black-50">Total Expenses</dt>
+                <dd class="col-6 text-danger fw-bold text-truncate">12,050,000/=</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Net Profit</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">11,850,000/=</dd>
+              </dl>
             </div>
           </div>
         </div>
 
-        <!-- Ratios -->
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Profit Margin</h6>
-              <h5 class="fw-bold">49.6%</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Expense-to-Income Ratio</h6>
-              <h5 class="fw-bold">50.4%</h5>
-            </div>
-          </div>
-        </div>
+        <!-- Ratios & Averages -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100 border-primary" style="padding: 0.6rem;">
+            <div class="card-body p-2">
+              <h5 class="card-title mb-2 text-primary fs-6">Ratios & Averages</h5>
+              <dl class="row mb-0" style="font-size: 0.75rem;">
+                <dt class="col-6 text-truncate text-black-50">Profit Margin</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">49.6%</dd>
 
-        <!-- Averages -->
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Avg Daily Income</h6>
-              <h5 class="fw-bold">398,333/=</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Avg Daily Expense</h6>
-              <h5 class="fw-bold">200,833/=</h5>
+                <dt class="col-6 text-truncate text-black-50">Expense-to-Income Ratio</dt>
+                <dd class="col-6 text-danger fw-bold text-truncate">50.4%</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Avg Daily Income</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">398,333/=</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Avg Daily Expense</dt>
+                <dd class="col-6 text-danger fw-bold text-truncate">200,833/=</dd>
+              </dl>
             </div>
           </div>
         </div>
 
         <!-- Sectors -->
-        <div class="col-md-4">
-          <div class="card border-start border-info shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Best Sector</h6>
-              <h5 class="fw-bold">Embroidery</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card border-start border-warning shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Worst Sector</h6>
-              <h5 class="fw-bold">Repairs</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Top 3 Sectors</h6>
-              <h5 class="fw-bold">Emb, Salon, Print</h5>
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100 border-primary" style="padding: 0.6rem;">
+            <div class="card-body p-2">
+              <h5 class="card-title mb-2 text-primary fs-6">Sectors</h5>
+              <dl class="row mb-0" style="font-size: 0.75rem;">
+                <dt class="col-6 text-truncate text-black-50">Best Sector</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">Embroidery</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Worst Sector</dt>
+                <dd class="col-6 text-danger fw-bold text-truncate">Repairs</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Top 3 Sectors</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">Emb, Salon, Print</dd>
+              </dl>
             </div>
           </div>
         </div>
 
         <!-- Clients -->
-        <div class="col-md-6">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Biggest Client</h6>
-              <h5 class="fw-bold">Zoe P/School</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Top 3 Clients</h6>
-              <h5 class="fw-bold">Zoe, Karen, Mike</h5>
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100 border-primary" style="padding: 0.6rem;">
+            <div class="card-body p-2">
+              <h5 class="card-title mb-2 text-primary fs-6">Clients</h5>
+              <dl class="row mb-0" style="font-size: 0.75rem;">
+                <dt class="col-6 text-truncate text-black-50">Biggest Client</dt>
+                <dd class="col-6 fw-bold text-black text-truncate">Zoe P/School</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Top 3 Clients</dt>
+                <dd class="col-6 fw-bold text-black text-truncate">Zoe, Karen, Mike</dd>
+              </dl>
             </div>
           </div>
         </div>
 
-        <!-- Expense Highlights -->
-        <div class="col-md-6">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Biggest Expense</h6>
-              <h5 class="fw-bold">Rent</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Most Common Expense</h6>
-              <h5 class="fw-bold">Wages</h5>
+        <!-- Expenses -->
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100 border-danger" style="padding: 0.6rem;">
+            <div class="card-body p-2">
+              <h5 class="card-title mb-2 text-danger fs-6">Expenses</h5>
+              <dl class="row mb-0" style="font-size: 0.75rem;">
+                <dt class="col-6 text-truncate text-black-50">Biggest Expense</dt>
+                <dd class="col-6 fw-bold text-danger text-truncate">Rent</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Most Common Expense</dt>
+                <dd class="col-6 fw-bold text-danger text-truncate">Wages</dd>
+              </dl>
             </div>
           </div>
         </div>
 
         <!-- Daily Metrics -->
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Most Profitable Day</h6>
-              <h5 class="fw-bold">25/05/2025</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Least Profitable Day</h6>
-              <h5 class="fw-bold">05/06/2025</h5>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="text-muted">Most Active Day</h6>
-              <h5 class="fw-bold">15/06/2025</h5>
+        <div class="col-lg-4 col-md-6">
+          <div class="card shadow-sm h-100 border-primary" style="padding: 0.6rem;">
+            <div class="card-body p-2">
+              <h5 class="card-title mb-2 text-primary fs-6">Daily Metrics</h5>
+              <dl class="row mb-0" style="font-size: 0.75rem;">
+                <dt class="col-6 text-truncate text-black-50">Most Profitable Day</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">25/05/2025</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Least Profitable Day</dt>
+                <dd class="col-6 fw-bold text-danger text-truncate">05/06/2025</dd>
+
+                <dt class="col-6 text-truncate text-black-50">Most Active Day</dt>
+                <dd class="col-6 text-success fw-bold text-truncate">15/06/2025</dd>
+              </dl>
             </div>
           </div>
         </div>
 
       </div>
     </div>
+
   </div>
 
   <script>
@@ -970,7 +907,6 @@
   </script>
 </div>
 
-    </div>
 
 
 <!-- People Tab -->
