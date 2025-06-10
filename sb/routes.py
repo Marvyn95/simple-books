@@ -224,7 +224,7 @@ def home():
     print(summary_info)
 
     return render_template("home.html",
-                            year = datetime.datetime.today().year"",
+                            year = datetime.datetime.today().year,
                             user = user,
                             org = org,
                             org_employees = org_employees,
