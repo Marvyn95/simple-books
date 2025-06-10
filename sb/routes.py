@@ -173,6 +173,56 @@ def home():
     org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash"})
     org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
 
+    # summaries
+    sales = list(db.Sales.find({"organization_id": user["organization"]}))
+    expenses = list(db.Expenses.find({"organization_id": user["organization"]}))
+
+    total_income = sum(sale.get("amount", 0) for sale in sales)
+    total_expenses = sum(exp.get("amount", 0) for exp in expenses)
+    net_profit = total_income - total_expenses
+
+    # Profit Margin
+    if total_expenses != 0:
+        profit_margin = f"{round((net_profit / total_expenses) * 100, 2)}%"
+    else:
+        profit_margin = "N/A"
+
+    # Expense-to-Income Ratio
+    if total_income != 0:
+        exp_to_inc_ratio = f"{round((total_expenses / total_income) * 100, 2)}%"
+    else:
+        exp_to_inc_ratio = "N/A"
+    
+    # average daily income
+    dates_1 = [datetime.datetime.strptime(sale["date"], "%B %d, %Y") for sale in sales]
+    if dates_1:
+        days_between = (max(dates_1) - min(dates_1)).days + 1
+        average_daily_income = round((total_income/days_between), 2)
+        print(average_daily_income)
+    else:
+        average_daily_income = "N/A"
+
+    # average daily expense
+    dates_2 = [datetime.datetime.strptime(exp["date"], "%B %d, %Y") for exp in expenses]
+    if dates_2:
+        days_between = (max(dates_2) - min(dates_2)).days + 1
+        average_daily_expense = round((total_expenses/days_between), 2)
+        print(average_daily_expense)
+    else:
+        average_daily_expense = "N/A"
+        
+
+    summary_info = {
+        "total_income": total_income,
+        "total_expenses": total_expenses,
+        "net_profit": net_profit,
+        "profit_margin": profit_margin,
+        "exp_to_inc_ratio": exp_to_inc_ratio,
+        "average_daily_income": average_daily_income,
+        "average_daily_expense": average_daily_expense
+        }
+    print(summary_info)
+
     return render_template("home.html",
                             user = user,
                             org = org,
@@ -182,7 +232,8 @@ def home():
                             org_sales = org_sales,
                             org_pending_sales = org_pending_sales,
                             org_expenses = org_expenses,
-                            org_pending_expenses = org_pending_expenses)
+                            org_pending_expenses = org_pending_expenses,
+                            summary_info = summary_info)
 
 
 @app.route("/add_income_category", methods=["POST"])
