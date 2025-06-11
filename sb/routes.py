@@ -210,6 +210,8 @@ def home():
         print(average_daily_expense)
     else:
         average_daily_expense = "N/A"
+
+    
         
 
     summary_info = {
@@ -235,6 +237,7 @@ def home():
                             org_expenses = org_expenses,
                             org_pending_expenses = org_pending_expenses,
                             summary_info = summary_info)
+
 
 
 @app.route("/add_income_category", methods=["POST"])
