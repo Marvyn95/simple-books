@@ -329,6 +329,16 @@ def home():
     # least profitable day
     least_profitable_day = sorted_daily_profit_info[-1]
 
+    # working on most active day
+    active_days = [sale.get("date") for sale in sales if "date" in sale]
+    active_day_counts = Counter(active_days)
+    sorted_active_day_counts = sorted(
+        [{"day": cat, "count": count} for cat, count in active_day_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )
+    most_active_day = sorted_active_day_counts[0]
+
     summary_info = {
         "total_income": total_income,
         "total_expenses": total_expenses,
@@ -347,7 +357,8 @@ def home():
         "biggest_client": biggest_client,
         "top_3_clients": top_3_clients,
         "most_profitable_day": most_profitable_day,
-        "least_profitable_day": least_profitable_day
+        "least_profitable_day": least_profitable_day,
+        "most_active_day": most_active_day
         }
     
     print(summary_info)
