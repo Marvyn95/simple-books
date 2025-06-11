@@ -2,6 +2,8 @@ from sb import app, db, bcrypt
 from flask import render_template, request, session, flash, redirect, url_for
 import datetime
 from bson.objectid import ObjectId
+from collections import Counter
+
 
 @app.route("/register_owner", methods=["GET", "POST"])
 def register_owner():
@@ -179,6 +181,8 @@ def home():
 
     total_income = sum(sale.get("amount", 0) for sale in sales)
     total_expenses = sum(exp.get("amount", 0) for exp in expenses)
+
+    #net profit
     net_profit = total_income - total_expenses
 
     # Profit Margin
@@ -195,24 +199,135 @@ def home():
     
     # average daily income
     dates_1 = [datetime.datetime.strptime(sale["date"], "%B %d, %Y") for sale in sales]
+    days_between_1 = (max(dates_1) - min(dates_1)).days + 1
+    dates_2 = [datetime.datetime.strptime(exp["date"], "%B %d, %Y") for exp in expenses]
+    days_between_2 = (max(dates_2) - min(dates_2)).days + 1
+
     if dates_1:
-        days_between = (max(dates_1) - min(dates_1)).days + 1
-        average_daily_income = round((total_income/days_between), 2)
+        if dates_1 > dates_2:
+            average_daily_income = round((total_income/days_between_1), 2)
+        else:
+            average_daily_income = round((total_income/days_between_2), 2)
         print(average_daily_income)
     else:
         average_daily_income = "N/A"
 
     # average daily expense
-    dates_2 = [datetime.datetime.strptime(exp["date"], "%B %d, %Y") for exp in expenses]
     if dates_2:
-        days_between = (max(dates_2) - min(dates_2)).days + 1
-        average_daily_expense = round((total_expenses/days_between), 2)
+        if days_between_2 > days_between_1:
+            average_daily_expense = round((total_expenses/days_between_2), 2)
+        else:
+            average_daily_expense = round((total_expenses/days_between_1), 2)
         print(average_daily_expense)
     else:
         average_daily_expense = "N/A"
 
+    # working on sale sectors metricss
+    sale_sectors = {}
+    for sale in sales:
+        category = sale["income_source"]
+        amount = sale["amount"]
+        if category in sale_sectors:
+            sale_sectors[category] += amount
+        else:
+            sale_sectors[category] = amount
+    sorted_sale_sectors = sorted(sale_sectors.items(), key=lambda x: x[1], reverse=True)
+
+    # best sale sector
+    best_sector = sorted_sale_sectors[0][0]
+    worst_sector = sorted_sale_sectors[-1][0]
+    top_sectors = sorted_sale_sectors[:3]
+
+    # for most active sales
+    categories = [sale.get("income_source") for sale in sales if "income_source" in sale]
+    category_counts = Counter(categories)
+    sorted_category_list = sorted(
+        [{"category": cat, "count": count} for cat, count in category_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )
+
+    # most active sale sector
+    most_active_sector = sorted_category_list[0]
+    least_active_sector = sorted_category_list[-1]
+
+    # dealing with the expense metrics
+    expense_groups = {}
+    for exp in expenses:
+        category = exp["expense_source"]
+        amount = exp["amount"]
+        if category in expense_groups:
+            expense_groups[category] += amount
+        else:
+            expense_groups[category] = amount
+    sorted_expense_groups = sorted(expense_groups.items(), key=lambda x: x[1], reverse=True)
+
+    # biggest expense
+    biggest_expense = sorted_expense_groups[0]
     
-        
+    # obtaining most common expense
+    exp_categories = [exp.get("exp_source") for exp in expenses if "expense_source" in exp]
+    exp_category_counts = Counter(exp_categories)
+    sorted_exp_category_list = sorted(
+        [{"category": cat, "count": count} for cat, count in exp_category_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )
+
+    # most common expense
+    most_common_expense = sorted_exp_category_list[0]
+
+    # for clients metrics
+    client_categories = [sale.get("client_name") for sale in sales if "client_name" in sale]
+    client_counts = Counter(client_categories)
+    sorted_client_list = sorted(
+        [{"category": cat, "count": count} for cat, count in client_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True
+    )
+
+    #biggest client
+    biggest_client = sorted_client_list[0]
+
+    #biggest 3 client
+    top_3_clients = sorted_client_list[:3]
+
+    # working on daily metrics
+    daily_sales_info = {}
+    for sale in sales:
+        day = sale["date"]
+        amount = sale["amount"]
+        if day in daily_sales_info:
+            daily_sales_info[day] += amount
+        else:
+            daily_sales_info[day] = amount
+
+    daily_exp_info = {}
+    for exp in expenses:
+        day = exp["date"]
+        amount = exp["amount"]
+        if day in daily_exp_info:
+            daily_exp_info[day] += amount
+        else:
+            daily_exp_info[day] = amount
+    
+    # computing profit for each day
+    daily_profit_info = {}
+    for d, p in daily_sales_info.items():
+        day = d
+        profit = (p - daily_exp_info[d]) if d in daily_exp_info else p
+        if day in daily_profit_info:
+            daily_profit_info[day] += profit
+        else:
+            daily_profit_info[day] = profit
+
+
+    sorted_daily_profit_info = sorted(daily_profit_info.items(), key=lambda x: x[1], reverse=True)
+    #most profitable table
+    most_profitable_day = sorted_daily_profit_info[0]
+
+    # least profitable day
+    least_profitable_day = sorted_daily_profit_info[-1]
 
     summary_info = {
         "total_income": total_income,
@@ -221,10 +336,22 @@ def home():
         "profit_margin": profit_margin,
         "exp_to_inc_ratio": exp_to_inc_ratio,
         "average_daily_income": average_daily_income,
-        "average_daily_expense": average_daily_expense
+        "average_daily_expense": average_daily_expense,
+        "best_sector": best_sector,
+        "worst_sector": worst_sector,
+        "top_sectors": top_sectors,
+        "most_active_sector": most_active_sector,
+        "least_active_sector": least_active_sector,
+        "biggest_expense": biggest_expense,
+        "most_common_expense": most_common_expense,
+        "biggest_client": biggest_client,
+        "top_3_clients": top_3_clients,
+        "most_profitable_day": most_profitable_day,
+        "least_profitable_day": least_profitable_day
         }
+    
     print(summary_info)
-
+    
     return render_template("home.html",
                             year = datetime.datetime.today().year,
                             user = user,
