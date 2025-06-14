@@ -16,7 +16,7 @@ def register_owner():
                 # registering business
                 db.Organizations.insert_one({
                     "org_name": owner_info["organization"],
-                    "locations": request.form.getlist("locations"),
+                    "locations": [loc for loc in request.form.getlist("locations") if loc!= ""],
                     "income_categories": [],
                     "expense_categories": []
                 })
@@ -29,7 +29,7 @@ def register_owner():
                     "password": bcrypt.generate_password_hash(owner_info["password"]).decode("utf-8"),
                     "role": "Owner",
                     "organization": org["_id"],
-                    "locations": org["locations"]
+                    "locations": [loc for loc in org["locations"] if loc!= ""]
                 })
                 flash(f"You have been registered successfully!", "success")
                 return redirect(url_for("login"))
@@ -170,14 +170,23 @@ def home():
     org_employees = db.Users.find({"organization": user["organization"]})
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
-    org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash"})
-    org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt"})
-    org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash"})
-    org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
+
 
     # summaries
-    sales = list(db.Sales.find({"organization_id": user["organization"]}))
-    expenses = list(db.Expenses.find({"organization_id": user["organization"]}))
+    if user["role"] == "Employee":
+        sales = list(db.Sales.find({"organization_id": user["organization"], "logger_id": user["_id"]}))
+        expenses = list(db.Expenses.find({"organization_id": user["organization"], "logger_id": user["_id"]}))
+        org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"]})
+        org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"]})
+        org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"]})
+        org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"]})
+    else:
+        sales = list(db.Sales.find({"organization_id": user["organization"]}))
+        expenses = list(db.Expenses.find({"organization_id": user["organization"]}))
+        org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash"})
+        org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt"})
+        org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash"})
+        org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
 
     total_income = sum(sale.get("amount", 0) for sale in sales)
     total_expenses = sum(exp.get("amount", 0) for exp in expenses)
@@ -187,7 +196,7 @@ def home():
 
     # Profit Margin
     if total_expenses != 0:
-        profit_margin = f"{round((net_profit / total_expenses) * 100, 2)}%"
+        profit_margin = f"{round((net_profit / total_income) * 100, 2)}%"
     else:
         profit_margin = "N/A"
 
@@ -199,26 +208,24 @@ def home():
     
     # average daily income
     dates_1 = [datetime.datetime.strptime(sale["date"], "%B %d, %Y") for sale in sales]
-    days_between_1 = (max(dates_1) - min(dates_1)).days + 1
     dates_2 = [datetime.datetime.strptime(exp["date"], "%B %d, %Y") for exp in expenses]
-    days_between_2 = (max(dates_2) - min(dates_2)).days + 1
+    days_between_1 = (max(dates_1) - min(dates_1)).days + 1 if dates_1 else 0
+    days_between_2 = (max(dates_2) - min(dates_2)).days + 1 if dates_2 else 0
 
     if dates_1:
         if dates_1 > dates_2:
-            average_daily_income = round((total_income/days_between_1), 2)
+            average_daily_income = round((total_income/days_between_1), 2) if days_between_1 else "N/A"
         else:
-            average_daily_income = round((total_income/days_between_2), 2)
-        print(average_daily_income)
+            average_daily_income = round((total_income/days_between_2), 2) if days_between_2 else "N/A"
     else:
         average_daily_income = "N/A"
 
     # average daily expense
     if dates_2:
         if days_between_2 > days_between_1:
-            average_daily_expense = round((total_expenses/days_between_2), 2)
+            average_daily_expense = round((total_expenses/days_between_2), 2) if days_between_2 else "N/A"
         else:
-            average_daily_expense = round((total_expenses/days_between_1), 2)
-        print(average_daily_expense)
+            average_daily_expense = round((total_expenses/days_between_1), 2) if days_between_1 else "N/A"
     else:
         average_daily_expense = "N/A"
 
@@ -234,9 +241,9 @@ def home():
     sorted_sale_sectors = sorted(sale_sectors.items(), key=lambda x: x[1], reverse=True)
 
     # best sale sector
-    best_sector = sorted_sale_sectors[0][0]
-    worst_sector = sorted_sale_sectors[-1][0]
-    top_sectors = sorted_sale_sectors[:3]
+    best_sector = sorted_sale_sectors[0][0] if sorted_sale_sectors else "N/A"
+    worst_sector = sorted_sale_sectors[-1][0] if sorted_sale_sectors else "N/A"
+    top_sectors = ", ".join([sector[0] for sector  in sorted_sale_sectors[:3]]) if sorted_sale_sectors else "N/A"
 
     # for most active sales
     categories = [sale.get("income_source") for sale in sales if "income_source" in sale]
@@ -248,8 +255,8 @@ def home():
     )
 
     # most active sale sector
-    most_active_sector = sorted_category_list[0]
-    least_active_sector = sorted_category_list[-1]
+    most_active_sector = sorted_category_list[0] if sorted_category_list else "N/A"
+    least_active_sector = sorted_category_list[-1] if sorted_category_list else "N/A"
 
     # dealing with the expense metrics
     expense_groups = {}
@@ -263,19 +270,18 @@ def home():
     sorted_expense_groups = sorted(expense_groups.items(), key=lambda x: x[1], reverse=True)
 
     # biggest expense
-    biggest_expense = sorted_expense_groups[0]
+    biggest_expense = sorted_expense_groups[0] if sorted_expense_groups else "N/A"
     
     # obtaining most common expense
-    exp_categories = [exp.get("exp_source") for exp in expenses if "expense_source" in exp]
+    exp_categories = [exp.get("expense_source") for exp in expenses if "expense_source" in exp]
     exp_category_counts = Counter(exp_categories)
     sorted_exp_category_list = sorted(
         [{"category": cat, "count": count} for cat, count in exp_category_counts.items()],
         key=lambda x: x["count"],
         reverse=True
     )
-
     # most common expense
-    most_common_expense = sorted_exp_category_list[0]
+    most_common_expense = sorted_exp_category_list[0] if sorted_exp_category_list else "N/A"
 
     # for clients metrics
     client_categories = [sale.get("client_name") for sale in sales if "client_name" in sale]
@@ -287,10 +293,10 @@ def home():
     )
 
     #biggest client
-    biggest_client = sorted_client_list[0]
+    biggest_client = sorted_client_list[0] if sorted_client_list else "N/A"
 
     #biggest 3 client
-    top_3_clients = sorted_client_list[:3]
+    top_3_clients = ', '.join(client['category'] for client in sorted_client_list[:3]) if sorted_client_list else "N/A"
 
     # working on daily metrics
     daily_sales_info = {}
@@ -324,10 +330,10 @@ def home():
 
     sorted_daily_profit_info = sorted(daily_profit_info.items(), key=lambda x: x[1], reverse=True)
     #most profitable table
-    most_profitable_day = sorted_daily_profit_info[0]
+    most_profitable_day = sorted_daily_profit_info[0] if sorted_daily_profit_info else "N/A"
 
     # least profitable day
-    least_profitable_day = sorted_daily_profit_info[-1]
+    least_profitable_day = sorted_daily_profit_info[-1] if sorted_daily_profit_info else "N/A"
 
     # working on most active day
     active_days = [sale.get("date") for sale in sales if "date" in sale]
@@ -337,7 +343,7 @@ def home():
         key=lambda x: x["count"],
         reverse=True
     )
-    most_active_day = sorted_active_day_counts[0]
+    most_active_day = sorted_active_day_counts[0] if sorted_active_day_counts else "N/A"
 
     summary_info = {
         "total_income": total_income,

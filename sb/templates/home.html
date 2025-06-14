@@ -18,46 +18,52 @@
 </head>
 
 <body class="bg-light d-flex flex-column min-vh-100">
-  <!-- Navbar -->
-  <nav class="navbar navbar-light bg-white shadow-sm px-3 pb-0 d-flex justify-content-between align-items-center">
-    <p class="fs-2">
-      <span class="fw-bold" style="color: black;">Simple</span><span class="fst-italic fw-bold" style="color: rgb(3, 148, 3);">Books</span>
-    </p>
-  
-    <div class="d-flex align-items-center">
-        <div class="dropdown pb-3">
-        <a class="btn d-flex align-items-center dropdown-toggle-custom-width" href="#" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-            <span id="selected-location" class="flex-grow-1 text-truncate">{{ user['locations'][0] }}</span>
-            <i class="bi bi-chevron-down ms-1"></i>
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-x: auto;">
-            {% for location in user['locations'] %}
-            <li><a class="dropdown-item location-dropdown-item" href="#">{{ location }}</a></li>
-            {% endfor %}
-        </ul>
+<!-- Navbar -->
+<nav class="navbar navbar-light bg-white shadow-sm px-3 pb-0 d-flex justify-content-between align-items-center position-relative" style="min-height: 70px;">
+  <p class="fs-2 m-0">
+    <span class="fw-bold" style="color: black;">Simple</span><span class="fst-italic fw-bold" style="color: rgb(3, 148, 3);">Books</span>
+  </p>
+  <!-- Flash messages (centered vertically and horizontally) -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 1050; min-width: 300px; max-width: 500px;">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show d-flex justify-content-between align-items-center mb-0 px-3 py-2" role="alert">
+          <span class="me-2">{{ message }}</span>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-
-        <div class="dropdown pb-3">
-          <div class="d-flex align-items-center ps-3 mx-2 dropdown-toggle-custom-width" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="border-left: 2px solid black; color: rgb(3, 148, 3); cursor: pointer;">
-            <span class="fw-bold">{{ session['username'] }}</span>
-          </div>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="min-width: unset;">
-            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}" onclick="localStorage.removeItem('lastActiveTabId');">Logout</a></li>
-          </ul>
-        </div>
+      {% endfor %}
     </div>
-  </nav>
+  {% endif %}
+{% endwith %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+  <div class="d-flex align-items-center">
+    <!-- Location Dropdown -->
+    <div class="dropdown pb-3">
+      <a class="btn d-flex align-items-center dropdown-toggle-custom-width" href="#" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+        <span id="selected-location" class="flex-grow-1 text-truncate">{{ user['locations'][0] }}</span>
+        <i class="bi bi-chevron-down ms-1"></i>
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="overflow-x: auto;">
+        {% for location in user['locations'] %}
+        <li><a class="dropdown-item location-dropdown-item" href="#">{{ location }}</a></li>
         {% endfor %}
-        {% endif %}
-    {% endwith %}
+      </ul>
+    </div>
+
+    <!-- User Dropdown -->
+    <div class="dropdown pb-3">
+      <div class="d-flex align-items-center ps-3 mx-2 dropdown-toggle-custom-width" role="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="border-left: 2px solid black; color: rgb(3, 148, 3); cursor: pointer;">
+        <span class="fw-bold">{{ session['username'] }}</span>
+      </div>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="min-width: unset;">
+        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}" onclick="localStorage.removeItem('lastActiveTabId');">Logout</a></li>
+      </ul>
+    </div>
+
+  </div>
+</nav>
+
 
   <!-- Tabs -->
 <main class="flex-grow-1">
@@ -108,18 +114,20 @@
       <div class="col-md-4">
         <div class="card shadow-sm h-100">
           <div class="card-body">
-            <h4 class="card-title text-primary fs-4">📈 Record Sales</h4>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h4 class="card-title text-primary fs-4 mb-0">Record Sales</h4>
+              {% if user.role == 'Owner' %}
+                <div>
+                  <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#addSaleCategoryModal">
+                    ➕
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#manageSalesCategoriesModal">
+                    🛠
+                  </button>
+                </div>
+              {% endif %}
+            </div>
             <p class="card-text text-muted fs-6">Log and keep track of today's sales transactions</p>
-
-            {% if user.role == 'Owner' %}
-              <button class="btn btn-outline-primary btn-md mb-2" data-bs-toggle="modal" data-bs-target="#addSaleCategoryModal">
-                ➕ Add Sale Category
-              </button>
-              <button class="btn btn-outline-secondary btn-md ms-2 mb-2" data-bs-toggle="modal" data-bs-target="#manageSalesCategoriesModal">
-                🛠 Manage
-              </button>
-            {% endif %}
-
             {% for source in org_income_categories %}
               <div class="mt-3">
                 <button class="btn btn-outline-success btn-md w-100 text-start" data-bs-toggle="modal" data-bs-target="#incomeModal{{ loop.index }}">
@@ -131,22 +139,25 @@
         </div>
       </div>
 
+
       <!-- Record Expenses -->
       <div class="col-md-4">
         <div class="card shadow-sm h-100">
           <div class="card-body">
-            <h4 class="card-title text-primary fs-4">💸 Record Expenses</h4>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h4 class="card-title text-primary fs-4 mb-0">Record Expenses</h4>
+              {% if user.role == 'Owner' %}
+                <div>
+                  <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#addExpenseCategoryModal">
+                    ➕
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#manageExpenseCategoriesModal">
+                    🛠
+                  </button>
+                </div>
+              {% endif %}
+            </div>
             <p class="card-text text-muted fs-6">Log and keep track of your business expenditures.</p>
-
-            {% if user.role == 'Owner' %}
-              <button class="btn btn-outline-primary btn-md mb-2" data-bs-toggle="modal" data-bs-target="#addExpenseCategoryModal">
-                ➕ Add Expense Category
-              </button>
-              <button class="btn btn-outline-secondary btn-md ms-2 mb-2" data-bs-toggle="modal" data-bs-target="#manageExpenseCategoriesModal">
-                🛠 Manage
-              </button>
-            {% endif %}
-
             {% for source in org_expense_categories %}
               <div class="mt-3">
                 <button class="btn btn-outline-danger btn-md w-100 text-start" data-bs-toggle="modal" data-bs-target="#expenseModal{{ loop.index }}">
@@ -790,13 +801,13 @@
               <h5 class="card-title mb-2 text-primary fs-6">Financial Summary</h5>
               <dl class="row mb-0" style="font-size: 0.75rem;">
                 <dt class="col-6 text-truncate text-black-50">Total Income</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">23,900,000/=</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">{{ summary_info.total_income }}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Total Expenses</dt>
-                <dd class="col-6 text-danger fw-bold text-truncate">12,050,000/=</dd>
+                <dd class="col-6 text-danger fw-bold text-truncate">{{ summary_info.total_expenses }}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Net Profit</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">11,850,000/=</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">{{ summary_info.net_profit }}</dd>
               </dl>
             </div>
           </div>
@@ -809,16 +820,16 @@
               <h5 class="card-title mb-2 text-primary fs-6">Ratios & Averages</h5>
               <dl class="row mb-0" style="font-size: 0.75rem;">
                 <dt class="col-6 text-truncate text-black-50">Profit Margin</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">49.6%</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">{{ summary_info.profit_margin}}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Expense-to-Income Ratio</dt>
-                <dd class="col-6 text-danger fw-bold text-truncate">50.4%</dd>
+                <dd class="col-6 text-danger fw-bold text-truncate">{{ summary_info.exp_to_inc_ratio }}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Avg Daily Income</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">398,333/=</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">{{ summary_info.average_daily_income }}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Avg Daily Expense</dt>
-                <dd class="col-6 text-danger fw-bold text-truncate">200,833/=</dd>
+                <dd class="col-6 text-danger fw-bold text-truncate">{{ summary_info.average_daily_expense }}</dd>
               </dl>
             </div>
           </div>
@@ -831,13 +842,13 @@
               <h5 class="card-title mb-2 text-primary fs-6">Sectors</h5>
               <dl class="row mb-0" style="font-size: 0.75rem;">
                 <dt class="col-6 text-truncate text-black-50">Best Sector</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">Embroidery</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">{{ summary_info.best_sector }}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Worst Sector</dt>
-                <dd class="col-6 text-danger fw-bold text-truncate">Repairs</dd>
+                <dd class="col-6 text-danger fw-bold text-truncate">{{ summary_info.worst_sector }}</dd>
 
                 <dt class="col-6 text-truncate text-black-50">Top 3 Sectors</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">Emb, Salon, Print</dd>
+                <dd class="col-6 text-success fw-bold text-wrap">{{ summary_info.top_sectors }}</dd>
               </dl>
             </div>
           </div>
@@ -850,10 +861,14 @@
               <h5 class="card-title mb-2 text-primary fs-6">Clients</h5>
               <dl class="row mb-0" style="font-size: 0.75rem;">
                 <dt class="col-6 text-truncate text-black-50">Biggest Client</dt>
-                <dd class="col-6 fw-bold text-black text-truncate">Zoe P/School</dd>
+                <dd class="col-6 fw-bold text-black text-truncate">
+                  {{ summary_info.biggest_client.category if summary_info.biggest_client != 'N/A' else 'N/A' }}
+                </dd>
 
                 <dt class="col-6 text-truncate text-black-50">Top 3 Clients</dt>
-                <dd class="col-6 fw-bold text-black text-truncate">Zoe, Karen, Mike</dd>
+                <dd class="col-6 fw-bold text-black text-wrap">
+                  {{ summary_info.top_3_clients if summary_info.top_3_clients != 'N/A' else 'N/A' }}
+                </dd>
               </dl>
             </div>
           </div>
@@ -866,10 +881,14 @@
               <h5 class="card-title mb-2 text-danger fs-6">Expenses</h5>
               <dl class="row mb-0" style="font-size: 0.75rem;">
                 <dt class="col-6 text-truncate text-black-50">Biggest Expense</dt>
-                <dd class="col-6 fw-bold text-danger text-truncate">Rent</dd>
+                <dd class="col-6 fw-bold text-danger text-truncate">
+                  {{ summary_info.biggest_expense[0] if summary_info.biggest_expense != 'N/A' else 'N/A' }}
+                </dd>
 
                 <dt class="col-6 text-truncate text-black-50">Most Common Expense</dt>
-                <dd class="col-6 fw-bold text-danger text-truncate">Wages</dd>
+                <dd class="col-6 fw-bold text-danger text-truncate">
+                  {{ summary_info.most_common_expense.category if summary_info.most_common_expense != 'N/A' else 'N/A' }}
+                </dd>
               </dl>
             </div>
           </div>
@@ -882,17 +901,24 @@
               <h5 class="card-title mb-2 text-primary fs-6">Daily Metrics</h5>
               <dl class="row mb-0" style="font-size: 0.75rem;">
                 <dt class="col-6 text-truncate text-black-50">Most Profitable Day</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">25/05/2025</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">
+                  {{ summary_info.most_profitable_day[0] if summary_info.most_profitable_day != 'N/A' else 'N/A' }}
+                </dd>
 
                 <dt class="col-6 text-truncate text-black-50">Least Profitable Day</dt>
-                <dd class="col-6 fw-bold text-danger text-truncate">05/06/2025</dd>
+                <dd class="col-6 fw-bold text-danger text-truncate">
+                  {{ summary_info.least_profitable_day[0] if summary_info.least_profitable_day != 'N/A' else 'N/A' }}
+                </dd>
 
                 <dt class="col-6 text-truncate text-black-50">Most Active Day</dt>
-                <dd class="col-6 text-success fw-bold text-truncate">15/06/2025</dd>
+                <dd class="col-6 text-success fw-bold text-truncate">
+                  {{ summary_info.most_active_day.day if summary_info.most_active_day != 'N/A' else 'N/A' }}
+                </dd>
               </dl>
             </div>
           </div>
         </div>
+
 
       </div>
     </div>
