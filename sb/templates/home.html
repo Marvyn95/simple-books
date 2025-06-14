@@ -29,7 +29,7 @@
     <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 1050; min-width: 300px; max-width: 500px;">
       {% for category, message in messages %}
         <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show d-flex justify-content-between align-items-center mb-0 px-3 py-2" role="alert">
-          <span class="me-2">{{ message }}</span>
+          <span class="me-3">{{ message }}</span>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       {% endfor %}
