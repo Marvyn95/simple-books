@@ -123,30 +123,30 @@
 <!-- Tabs -->
 <div class="tabs fw-semibold mt-2">
   <div class="d-flex justify-content-center">
-    <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <ul class="nav nav-tabs flex-nowrap" id="myTab" role="tablist" style="white-space: nowrap;">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="inputs-tab" data-bs-toggle="tab" data-bs-target="#inputs" type="button" role="tab">
+        <button class="nav-link active px-md-3 py-md-2 px-2 py-1" id="inputs-tab" data-bs-toggle="tab" data-bs-target="#inputs" type="button" role="tab">
           Inputs
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="figures-tab" data-bs-toggle="tab" data-bs-target="#figures" type="button" role="tab">
+        <button class="nav-link px-md-3 py-md-2 px-2 py-1" id="figures-tab" data-bs-toggle="tab" data-bs-target="#figures" type="button" role="tab">
           Daily Figures
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="debts-tab" data-bs-toggle="tab" data-bs-target="#debts" type="button" role="tab">
+        <button class="nav-link px-md-3 py-md-2 px-2 py-1" id="debts-tab" data-bs-toggle="tab" data-bs-target="#debts" type="button" role="tab">
           Debts
         </button>
       </li>
       {% if user.role == 'Owner' %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">
+        <button class="nav-link px-md-3 py-md-2 px-2 py-1" id="summary-tab" data-bs-toggle="tab" data-bs-target="#summary" type="button" role="tab">
           Summaries
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="people-tab" data-bs-toggle="tab" data-bs-target="#people" type="button" role="tab">
+        <button class="nav-link px-md-3 py-md-2 px-2 py-1" id="people-tab" data-bs-toggle="tab" data-bs-target="#people" type="button" role="tab">
           People
         </button>
       </li>
@@ -154,6 +154,7 @@
     </ul>
   </div>
 </div>
+
 
 <!-- Main Content -->
 <main class="main-content">
