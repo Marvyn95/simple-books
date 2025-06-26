@@ -29,7 +29,7 @@ def register_owner():
                     "password": bcrypt.generate_password_hash(owner_info["password"]).decode("utf-8"),
                     "role": "Owner",
                     "organization": org["_id"],
-                    "locations": [loc for loc in org["locations"] if loc!= ""]
+                    "locations": [loc for loc in org["locations"] if loc != ""]
                 })
                 flash(f"You have been registered successfully!", "success")
                 return redirect(url_for("login"))
@@ -171,22 +171,46 @@ def home():
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
 
+    if request.method == "GET":
+        selected_location = user["locations"][0]
+        # summaries
+        if user["role"] == "Employee":
+            sales = list(db.Sales.find({"organization_id": user["organization"], "logger_id": user["_id"]}))
+            expenses = list(db.Expenses.find({"organization_id": user["organization"], "logger_id": user["_id"]}))
+            org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"]})
+            org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"]})
+            org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"]})
+            org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"]})
+        else:
+            sales = list(db.Sales.find({"organization_id": user["organization"], "location": selected_location}))
+            expenses = list(db.Expenses.find({"organization_id": user["organization"], "location": selected_location}))
+            org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash", "location": selected_location})
+            org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt", "location": selected_location})
+            org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash", "location": selected_location})
+            org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt", "location": selected_location})
+    elif request.method == "POST":
+        selected_location = user["locations"][0]
+        if user["role"] == "Employee":
+            sales = list(db.Sales.find({"organization_id": user["organization"], "logger_id": user["_id"], "location": selected_location}))
+            expenses = list(db.Expenses.find({"organization_id": user["organization"], "logger_id": user["_id"], "location": selected_location}))
+            org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"], "location": selected_location})
+            org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"], "location": selected_location})
+            org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"], "location": selected_location})
+            org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"], "location": selected_location})
+        else:
+            selected_location = request.form["selected_location"]
+            #reshuffing user/owner's locations
+            org_location_list = list(org["locations"])
+            org_location_list.remove(selected_location)
+            org_location_list.insert(0, selected_location)
+            db.Users.update_one({"_id": ObjectId(user["_id"])},{"$set": {"locations": org_location_list}})
 
-    # summaries
-    if user["role"] == "Employee":
-        sales = list(db.Sales.find({"organization_id": user["organization"], "logger_id": user["_id"]}))
-        expenses = list(db.Expenses.find({"organization_id": user["organization"], "logger_id": user["_id"]}))
-        org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"]})
-        org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"]})
-        org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash", "logger_id": user["_id"]})
-        org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt", "logger_id": user["_id"]})
-    else:
-        sales = list(db.Sales.find({"organization_id": user["organization"]}))
-        expenses = list(db.Expenses.find({"organization_id": user["organization"]}))
-        org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash"})
-        org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt"})
-        org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash"})
-        org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt"})
+            sales = list(db.Sales.find({"organization_id": user["organization"], "location": selected_location}))
+            expenses = list(db.Expenses.find({"organization_id": user["organization"], "location": selected_location}))
+            org_sales = db.Sales.find({"organization_id": user["organization"], "type": "cash", "location": selected_location})
+            org_pending_sales = db.Sales.find({"organization_id": user["organization"], "type": "debt", "location": selected_location})
+            org_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "cash", "location": selected_location})
+            org_pending_expenses = db.Expenses.find({"organization_id": user["organization"], "type": "debt", "location": selected_location})
 
     total_income = sum(sale.get("amount", 0) for sale in sales)
     total_expenses = sum(exp.get("amount", 0) for exp in expenses)
@@ -242,21 +266,33 @@ def home():
 
     # best sale sector
     best_sector = sorted_sale_sectors[0][0] if sorted_sale_sectors else "N/A"
-    worst_sector = sorted_sale_sectors[-1][0] if sorted_sale_sectors else "N/A"
+    # worst sale sector
+    worst_sector = []
+    for i in org_income_categories:
+        if i not in list(sale_sectors.keys()):
+            worst_sector.append(i)
+    if len(worst_sector) == 0:
+         worst_sector = sorted_sale_sectors[-1][0] if sorted_sale_sectors else "N/A"
+    else:
+        worst_sector = ", ".join(worst_sector)
     top_sectors = ", ".join([sector[0] for sector  in sorted_sale_sectors[:3]]) if sorted_sale_sectors else "N/A"
 
     # for most active sales
     categories = [sale.get("income_source") for sale in sales if "income_source" in sale]
-    category_counts = Counter(categories)
-    sorted_category_list = sorted(
-        [{"category": cat, "count": count} for cat, count in category_counts.items()],
-        key=lambda x: x["count"],
-        reverse=True
-    )
-
-    # most active sale sector
-    most_active_sector = sorted_category_list[0] if sorted_category_list else "N/A"
-    least_active_sector = sorted_category_list[-1] if sorted_category_list else "N/A"
+    if len(categories) != 0:
+        category_counts = Counter(categories)
+        sorted_category_list = sorted(
+            [{"category": cat, "count": count} for cat, count in category_counts.items()],
+            key=lambda x: x["count"],
+            reverse=True
+        )
+        # most active sale sector
+        most_active_sector = sorted_category_list[0]["category"] if sorted_category_list else "N/A"
+        #least active sale sector
+        least_active_sector = sorted_category_list[-1] if sorted_category_list else "N/A"
+    else:
+        most_active_sector = "N/A"
+        least_active_sector = "N/A"
 
     # dealing with the expense metrics
     expense_groups = {}
@@ -367,12 +403,13 @@ def home():
         "most_active_day": most_active_day
         }
     
-    print(summary_info)
+    # print(summary_info)
     
     return render_template("home.html",
                             year = datetime.datetime.today().year,
                             user = user,
                             org = org,
+                            selected_location = selected_location,
                             org_employees = org_employees,
                             org_income_categories = org_income_categories, 
                             org_expense_categories = org_expense_categories,
@@ -446,6 +483,7 @@ def add_sale():
             "type": form_data["type"],
             "client_name": form_data["client_name"],
             "date": datetime.datetime.today().strftime("%B %d, %Y"),
+            "location": user["locations"][0],
             "comments": form_data["comments"],
             "payment_history": []
         })
@@ -472,6 +510,7 @@ def add_expense():
             "service_provider": form_data["recipient"],
             "source_of_funds": form_data["payment_method"],
             "date": datetime.datetime.today().strftime("%B %d, %Y"),
+            "location": user["locations"][0],
             "comments": form_data["comments"],
             "payment_history": []
         })
