@@ -96,7 +96,6 @@ def register_emp():
 def delete_emp():
     if request.method == "POST":
         form_data = request.form
-        print(type(form_data["emp_id"]))
         db.Users.delete_one({"_id": ObjectId(form_data["emp_id"])})
         flash(f"{form_data['emp_name']} has been deleted successfully!", "success")
         return redirect(url_for("home"))
@@ -143,7 +142,6 @@ def update_password():
 def delete_sales_category():
     form_data = request.form
     user = db.Users.find_one({"user_name": session.get("username")})
-    print(user)
     db.Organizations.update_one(
         {"_id": user["organization"]},
         {"$pull": {"income_categories": {"category_name": form_data["category"]}}}
@@ -402,8 +400,6 @@ def home():
         "least_profitable_day": least_profitable_day,
         "most_active_day": most_active_day
         }
-    
-    # print(summary_info)
     
     return render_template("home.html",
                             year = datetime.datetime.today().year,
