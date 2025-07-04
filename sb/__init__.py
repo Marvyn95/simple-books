@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.secret_key = config.get("SECRET_KEY")
 #connecting to mongodb cluster and database
 cluster = pymongo.MongoClient(config.get("CONNECTION_STRING"))
-db = cluster.sh_app
+db = cluster.sb_app
 
 bcrypt = Bcrypt()
 
