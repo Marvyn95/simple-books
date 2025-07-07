@@ -107,8 +107,8 @@ def edit_employee():
     if request.method == "POST":
         employee_new_info = request.form
         employee_old_info = db.Users.find_one({"_id": ObjectId(employee_new_info["emp_id"])})
-        db.Users.delete_one({"_id": ObjectId(employee_new_info["emp_id"])})
         if employee_new_info["name"] != employee_old_info["user_name"]:
+            db.Users.delete_one({"_id": ObjectId(employee_new_info["emp_id"])})
             if db.Users.find_one({"user_name": employee_new_info["name"]}) is None:
                 employee_old_info["user_name"] = employee_new_info["name"]
             else:
