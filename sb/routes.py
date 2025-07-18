@@ -1,43 +1,51 @@
 from sb import app, db, bcrypt
 from flask import render_template, request, session, flash, redirect, url_for
-import datetime
+import datetime, json
 from bson.objectid import ObjectId
 from collections import Counter
 
 
 @app.route("/register_owner", methods=["GET", "POST"])
 def register_owner():
+
+    with open("../config.json") as config_file:
+        config = json.load(config_file)
+
     if request.method == "POST":
         owner_info = request.form
-        # checking if owner name is already registered
-        if db.Users.find_one({"user_name": owner_info["username"]}) is None:
-            # checking if business name is already registered
-            if db.Organizations.find_one({"org_name": owner_info["organization"]}) is None:
-                # registering business
-                db.Organizations.insert_one({
-                    "org_name": owner_info["organization"],
-                    "locations": [loc for loc in request.form.getlist("locations") if loc!= ""],
-                    "income_categories": [],
-                    "expense_categories": []
-                })
+        if owner_info["admin_password"] == config.get("ADMIN_PASSWORD"):
+            # checking if owner name is already registered
+            if db.Users.find_one({"user_name": owner_info["username"]}) is None:
+                # checking if business name is already registered
+                if db.Organizations.find_one({"org_name": owner_info["organization"]}) is None:
+                    # registering business
+                    db.Organizations.insert_one({
+                        "org_name": owner_info["organization"],
+                        "locations": [loc for loc in request.form.getlist("locations") if loc!= ""],
+                        "income_categories": [],
+                        "expense_categories": []
+                    })
 
-                # registering owner
-                org = db.Organizations.find_one({"org_name": owner_info["organization"]})
-                db.Users.insert_one({
-                    "user_name": owner_info["username"],
-                    "email": owner_info["email"],
-                    "password": bcrypt.generate_password_hash(owner_info["password"]).decode("utf-8"),
-                    "role": "Owner",
-                    "organization": org["_id"],
-                    "locations": [loc for loc in org["locations"] if loc != ""]
-                })
-                flash(f"You have been registered successfully!", "success")
-                return redirect(url_for("login"))
+                    # registering owner
+                    org = db.Organizations.find_one({"org_name": owner_info["organization"]})
+                    db.Users.insert_one({
+                        "user_name": owner_info["username"],
+                        "email": owner_info["email"],
+                        "password": bcrypt.generate_password_hash(owner_info["password"]).decode("utf-8"),
+                        "role": "Owner",
+                        "organization": org["_id"],
+                        "locations": [loc for loc in org["locations"] if loc != ""]
+                    })
+                    flash(f"You have been registered successfully!", "success")
+                    return redirect(url_for("login"))
+                else:
+                    flash("That business name is already registered, use another!", "error")
+                    return redirect(url_for("register_owner"))
             else:
-                flash("That business name is already registered, use another!", "error")
+                flash("That user name is already registered, use another!", "error")
                 return redirect(url_for("register_owner"))
         else:
-            flash("That user name is already registered, use another!", "error")
+            flash("Incorrect admin password!", "error")
             return redirect(url_for("register_owner"))
     return render_template("register_owner.html")
 

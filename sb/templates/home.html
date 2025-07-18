@@ -53,15 +53,51 @@
       font-size: 0.8rem; /* Adjusted button font */
       padding: 0.2rem 0.5rem;
     }
+    /* Theme-specific styles */
+    .text-primary {
+      color: #4f46e5 !important;
+    }
+    .border-primary {
+      border-color: #4f46e5 !important;
+    }
+    .bg-primary {
+      background-color: #4f46e5 !important;
+    }
+    .btn-primary {
+      background-color: #4f46e5 !important;
+      border-color: #4f46e5 !important;
+    }
+    .btn-primary:hover {
+      background-color: #4338ca !important;
+      border-color: #4338ca !important;
+    }
+    .btn-outline-primary {
+      color: #4f46e5 !important;
+      border-color: #4f46e5 !important;
+    }
+    .btn-outline-primary:hover {
+      background-color: #4f46e5 !important;
+      color: white !important;
+    }
+    .nav-link.active {
+      color: #4f46e5 !important;
+      border-bottom: 2px solid #4f46e5 !important;
+    }
+    .nav-tabs .nav-link {
+      color: #6b7280;
+    }
+    .nav-tabs .nav-link:hover {
+      color: #4f46e5 !important;
+    }
   </style>
 </head>
 
 <body class="bg-light">
 <!-- Navbar -->
 <nav class="navbar navbar-light bg-white shadow-sm px-3 pb-0 d-flex justify-content-between align-items-center" style="min-height: 70px;">
-  <p class="fs-2 m-0">
-    <span class="fw-bold" style="color: black;">Simple</span><span class="fst-italic fw-bold" style="color: rgb(3, 148, 3);">Books</span>
-  </p>
+<p class="fs-2 m-0">
+  <span class="fw-bold" style="color: #4f46e5;">Simple</span><span class="fw-bold"> Books</span>
+</p>
 
 <!-- Flash messages (centered, compact, auto-dismiss after 3s) -->
 {% with messages = get_flashed_messages(with_categories=true) %}
