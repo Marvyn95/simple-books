@@ -107,17 +107,23 @@ def edit_employee():
     if request.method == "POST":
         employee_new_info = request.form
         employee_old_info = db.Users.find_one({"_id": ObjectId(employee_new_info["emp_id"])})
+        #updating employee name
         if employee_new_info["name"] != employee_old_info["user_name"]:
-            db.Users.delete_one({"_id": ObjectId(employee_new_info["emp_id"])})
             if db.Users.find_one({"user_name": employee_new_info["name"]}) is None:
-                employee_old_info["user_name"] = employee_new_info["name"]
+                db.Users.update_one({"_id": ObjectId(employee_new_info["emp_id"])}, {"$set":{"user_name": employee_new_info["name"]}})
+                flash("Employee name has been updated successfully!", "success")
+                if employee_old_info["role"] != "Owner":
+                    session.pop(employee_old_info["user_name"], None)
+                else:
+                    session.pop(employee_old_info["user_name"], None)
+                    session["username"] = employee_new_info["name"]
             else:
                 flash("That user name is already registered, use another!", "error")
-                db.Users.insert_one(employee_old_info)
-                return redirect(url_for("home"))
-        employee_old_info["locations"] = [(employee_new_info["location"])]
-        db.Users.insert_one(employee_old_info)
-        flash("Employee data has been updated successfully!", "success")
+
+        #updating employee location
+        if employee_new_info["location"] != employee_old_info["locations"][0]:
+            db.Users.update_one({"_id": ObjectId(employee_new_info["emp_id"])}, {"$set":{"locations": [employee_new_info["location"]]}})
+            flash("Employee date has been updated successfully!", "success")
         return redirect(url_for("home"))
     else:
         return redirect(url_for("home"))
@@ -126,6 +132,7 @@ def edit_employee():
 def update_password():
     if request.method == "POST":
         form_data = request.form
+        employee_info = db.Users.find_one({"_id": ObjectId(form_data["user_id"])})
         if form_data["new_password"] != form_data["confirm_password"]:
             flash("Passwords do not match!", "danger")
             return redirect(request.referrer)
@@ -134,6 +141,7 @@ def update_password():
                 "password": bcrypt.generate_password_hash(form_data["new_password"]).decode("utf-8")
             }})
             flash("Password updated successfully", "success")
+            # session.pop(employee_info["username"], None)
             return redirect(url_for('home'))
     else:
         return redirect(url_for('home'))
@@ -168,6 +176,9 @@ def home():
     org_employees = db.Users.find({"organization": user["organization"]})
     org_income_categories = [k["category_name"] for k in org["income_categories"]]
     org_expense_categories = [k["category_name"] for k in org["expense_categories"]]
+
+    if session.get("username") is None:
+        return redirect(url_for("login"))
 
     if request.method == "GET":
         selected_location = user["locations"][0]
